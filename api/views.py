@@ -50,6 +50,12 @@ def AddStudent(request):
 
     return HttpResponse("Added Student: "+NAME)
 
+def DeleteStudent(request):
+    ID = request.GET.get("ID")
+    name = database.child("Student").child(ID).child("NAME").get().val()
+    database.child("Student").child(ID).remove()
+    return HttpResponse("Removed Student: "+name)
+
 def AddFaculty(request): 
     # Post Auth
     if (database.child("Faculty").child(ID).get().val()):
@@ -70,5 +76,10 @@ def AddFaculty(request):
         "ACCESS_ID": ACCESS_ID,
     }
     database.child("Faculty").child(ID).set(data)
-
     return HttpResponse("Added Faculty: "+NAME)
+
+def DeleteFaculty(request):
+    ID = request.GET.get("ID")
+    name = database.child("Faculty").child(ID).child("NAME").get().val()
+    database.child("Faculty").child(ID).remove()
+    return HttpResponse("Removed Faculty: "+name)
