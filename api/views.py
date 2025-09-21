@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from django.http import HttpResponse
+from requests.exceptions import HTTPError
 import pyrebase
 
 config = {
@@ -17,12 +18,52 @@ auth  = firebase.auth()
 database = firebase.database()
 
 # Create your views here.
+def Signup(request):
+    email = request.GET.get("EMAIL")
+    password = request.GET.get("PASSWORD")
+    
+    try:
+        user = auth.create_user_with_email_and_password(email, password)
+    except HTTPError as e:
+        error_message = e.args[1]['error']['message']
+        if error_message == "EMAIL_EXISTS":
+            return HttpResponse("Email already exists")
+        elif error_message.startswith("WEAK_PASSWORD"):
+            return HttpResponse("Password is too weak")
+        else:
+            return HttpResponse("Other error:" + error_message)
+
+    request.session['tokenID'] = user['idToken']
+    return HttpResponse(user['idToken'])
+
+def Login(request):
+    email = request.GET.get("EMAIL")
+    password = request.GET.get("PASSWORD")
+    
+    try:
+        user = auth.sign_in_with_email_and_password(email, password)
+    except HTTPError as e:
+        error_message = e.args[1]['error']['message']
+        if error_message == "EMAIL_NOT_FOUND":
+            return HttpResponse("Email already exists")
+        elif error_message == "INVALID_PASSWORD":
+            return HttpResponse("Password is too weak")
+        else:
+            return HttpResponse("Other error:" + error_message)
+
+    request.session['tokenID'] = user['idToken']
+    return HttpResponse(user['idToken'])
+
 def AddStudent(request): 
-    # Post Auth
-    if (database.child("Student").child(ID).get().val()):
+    token_id = request.session.get('tokenID')
+    if not token_id:
+        return HttpResponse("Unauthorized")
+    
+    ID = request.GET.get("ID")
+
+    if (database.child("Student").child(ID).get(token_id).val()):
         return HttpResponse("Student Already Exists")
 
-    ID = request.GET.get("ID")
     NAME = request.GET.get("NAME")
     MOBILE = request.GET.get("MOBILE")
     DOB = request.GET.get("DOB")
@@ -46,22 +87,30 @@ def AddStudent(request):
             "RELATIONSHIP": EMC_RELATIONSHIP
         }
     }
-    database.child("Student").child(ID).set(data)
+    database.child("Student").child(ID).set(data, token_id)
 
     return HttpResponse("Added Student: "+NAME)
 
 def DeleteStudent(request):
+    token_id = request.session.get('tokenID')
+    if not token_id:
+        return HttpResponse("Unauthorized")
+
     ID = request.GET.get("ID")
-    name = database.child("Student").child(ID).child("NAME").get().val()
-    database.child("Student").child(ID).remove()
+    name = database.child("Student").child(ID).child("NAME").get(token_id).val()
+    database.child("Student").child(ID).remove(token_id)
     return HttpResponse("Removed Student: "+name)
 
 def AddFaculty(request): 
-    # Post Auth
-    if (database.child("Faculty").child(ID).get().val()):
-        return HttpResponse("Faculty Already Exists")
+    token_id = request.session.get('tokenID')
+    if not token_id:
+        return HttpResponse("Unauthorized")
 
     ID = request.GET.get("ID")
+
+    if (database.child("Faculty").child(ID).get(token_id).val()):
+        return HttpResponse("Faculty Already Exists")
+
     NAME = request.GET.get("NAME")
     MOBILE = request.GET.get("MOBILE")
     DOB = request.GET.get("DOB")
@@ -75,11 +124,15 @@ def AddFaculty(request):
         "GENDER": GENDER,
         "ACCESS_ID": ACCESS_ID,
     }
-    database.child("Faculty").child(ID).set(data)
+    database.child("Faculty").child(ID).set(data, token_id)
     return HttpResponse("Added Faculty: "+NAME)
 
 def DeleteFaculty(request):
+    token_id = request.session.get('tokenID')
+    if not token_id:
+        return HttpResponse("Unauthorized")
+
     ID = request.GET.get("ID")
-    name = database.child("Faculty").child(ID).child("NAME").get().val()
-    database.child("Faculty").child(ID).remove()
+    name = database.child("Faculty").child(ID).child("NAME").get(token_id).val()
+    database.child("Faculty").child(ID).remove(token_id)
     return HttpResponse("Removed Faculty: "+name)
