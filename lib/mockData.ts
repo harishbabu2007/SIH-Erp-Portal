@@ -4,7 +4,7 @@ export interface AdmissionApplication {
   email: string;
   phone: string;
   course: string;
-  status: 'pending' | 'approved' | 'rejected';
+  status: 'pending' | 'approved' | 'rejected' | 'under_review';
   applicationDate: string;
   documents: string[];
   feesPaid: boolean;
