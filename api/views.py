@@ -19,6 +19,8 @@ database = firebase.database()
 # Create your views here.
 def AddStudent(request): 
     # Post Auth
+    if (database.child("Student").child(ID).get().val()):
+        return HttpResponse("Student Already Exists")
 
     ID = request.GET.get("ID")
     NAME = request.GET.get("NAME")
@@ -47,3 +49,26 @@ def AddStudent(request):
     database.child("Student").child(ID).set(data)
 
     return HttpResponse("Added Student: "+NAME)
+
+def AddFaculty(request): 
+    # Post Auth
+    if (database.child("Faculty").child(ID).get().val()):
+        return HttpResponse("Faculty Already Exists")
+
+    ID = request.GET.get("ID")
+    NAME = request.GET.get("NAME")
+    MOBILE = request.GET.get("MOBILE")
+    DOB = request.GET.get("DOB")
+    GENDER = request.GET.get("GENDER")
+    ACCESS_ID = request.GET.get("ACCESS_ID")
+
+    data = {
+        "NAME": NAME,
+        "MOBILE": MOBILE,
+        "DOB": DOB,
+        "GENDER": GENDER,
+        "ACCESS_ID": ACCESS_ID,
+    }
+    database.child("Faculty").child(ID).set(data)
+
+    return HttpResponse("Added Faculty: "+NAME)
