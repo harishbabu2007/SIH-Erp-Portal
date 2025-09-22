@@ -1,7 +1,9 @@
 from django.shortcuts import render
 from django.http import HttpResponse
 from requests.exceptions import HTTPError
+from django.views.decorators.csrf import csrf_exempt # purely for test
 import pyrebase
+import json
 
 config = {
     "apiKey": "AIzaSyAQrhF-jzclVk_1Ud4Jh4K5327Bd9Zq_C8",
@@ -18,14 +20,18 @@ auth  = firebase.auth()
 database = firebase.database()
 
 # Create your views here.
+# @csrf_exempt # purely for test
 def Signup(request):
-    email = request.GET.get("EMAIL")
-    password = request.GET.get("PASSWORD")
+    if request.method != "POST":
+        return HttpResponse("Form submission pls")
+        
+    email = request.POST.get("EMAIL")
+    password = request.POST.get("PASSWORD")
     
     try:
         user = auth.create_user_with_email_and_password(email, password)
     except HTTPError as e:
-        error_message = e.args[1]['error']['message']
+        error_message = json.loads(e.args[1])['error']['message']
         if error_message == "EMAIL_EXISTS":
             return HttpResponse("Email already exists")
         elif error_message.startswith("WEAK_PASSWORD"):
@@ -36,14 +42,18 @@ def Signup(request):
     request.session['tokenID'] = user['idToken']
     return HttpResponse(user['idToken'])
 
+# @csrf_exempt # purely for test
 def Login(request):
-    email = request.GET.get("EMAIL")
-    password = request.GET.get("PASSWORD")
+    if request.method != "POST":
+        return HttpResponse("Form submission pls")
+        
+    email = request.POST.get("EMAIL")
+    password = request.POST.get("PASSWORD")
     
     try:
         user = auth.sign_in_with_email_and_password(email, password)
     except HTTPError as e:
-        error_message = e.args[1]['error']['message']
+        error_message = json.loads(e.args[1])['error']['message']
         if error_message == "EMAIL_NOT_FOUND":
             return HttpResponse("Email already exists")
         elif error_message == "INVALID_PASSWORD":

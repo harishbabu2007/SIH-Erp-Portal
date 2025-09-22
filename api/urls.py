@@ -6,4 +6,6 @@ urlpatterns = [
     path("AddFaculty/", AddFaculty),
     path("DeleteStudent/", DeleteStudent),
     path("DeleteFaculty/", DeleteFaculty),
+    path("Login/", Login),
+    path("Signup/", Signup),
 ]
