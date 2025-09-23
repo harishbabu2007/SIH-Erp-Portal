@@ -1,9 +1,10 @@
 from django.shortcuts import render
-from django.http import HttpResponse
+from django.http import HttpResponse,JsonResponse
 from requests.exceptions import HTTPError
 from django.views.decorators.csrf import csrf_exempt # purely for test
 import pyrebase
 import json
+from datetime import date
 import requests
 
 config = {
@@ -62,6 +63,8 @@ def Login(request):
     request.session['UID'] = user.get("localId")
     request.session['refreshID'] = user['refreshToken']
     return HttpResponse(user['idToken'])
+
+# Needs Admin Access ================================================================
 
 # @csrf_exempt # purely for test
 def AddStudent(request): 
@@ -223,3 +226,94 @@ def AddFaculty(request):
     }
     database.child("Faculty").child(uid).set(data, token_id)
     return HttpResponse("Added Faculty: "+NAME)
+
+def GetStudents(request):
+    token_id = request.session.get('tokenID')
+    condition, uid = verify_token(token_id)
+    if not condition:
+        return HttpResponse("Unauthorized")
+    
+    return JsonResponse(database.child("Student").get(token_id).val())
+
+def GetFeesData(request):
+    token_id = request.session.get('tokenID')
+    condition, uid = verify_token(token_id)
+    if not condition:
+        return HttpResponse("Unauthorized")
+    
+    fees_paid = 0
+    fees_pending = 0
+    data = database.child("Student").get(token_id).val()
+    for i in data:
+        fees_paid += data["FEES_DATA"]["PAID"]
+        fees_pending += data["FEES_DATA"]["PENDING"]
+    
+    return JsonResponse({"PAID": fees_paid, "PENDING": fees_pending, "TOTAL":fees_pending+fees_paid})
+
+def GetBooks(request):
+    token_id = request.session.get('tokenID')
+    condition, uid = verify_token(token_id)
+    if not condition:
+        return HttpResponse("Unauthorized")
+    
+    return JsonResponse(database.child("Books").get(token_id).val())
+
+def AddBook(request):
+    token_id = request.session.get('tokenID')
+    condition, uid = verify_token(token_id)
+    if not condition:
+        return HttpResponse("Unauthorized")
+    
+    if request.method != "POST":
+        return HttpResponse("Form submission pls")
+    
+    ID = request.POST.get("ID")
+    NAME = request.POST.get("NAME")
+    AUTHOR = request.POST.get("AUTHOR")
+    DESCRIPTION = request.POST.get("DESCRIPTION")
+    ISSUED_BY = None # Roll no
+
+    data = {
+        "NAME": NAME,
+        "AUTHOR": AUTHOR,
+        "DESCRIPTION": DESCRIPTION,
+        "ISSUED_BY": ISSUED_BY, # Roll no.
+        "DATE": None
+    }
+    database.child("Books").child(ID).set(data, token_id)
+    return HttpResponse("Added Book: "+NAME)
+
+def IssueBook(request):
+    token_id = request.session.get('tokenID')
+    condition, uid = verify_token(token_id)
+    if not condition:
+        return HttpResponse("Unauthorized")
+    
+    if request.method != "POST":
+        return HttpResponse("Form submission pls")
+    
+    ID = request.POST.get("ID")
+    todaysdate = date.today()
+    database.child("Books").child(ID).child("DATE").set([todaysdate.year, todaysdate.month, todaysdate.day], token_id)
+    
+    database.child("Books").child(ID).child("ISSUED_BY").set(database.child("Student").child(uid).child("NAME").get(token_id).val(), token_id)
+    return HttpResponse("Issued Book: "+database.child("Books").child(ID).child("NAME").get(token_id).val())
+
+def ReturnBook(request):
+    token_id = request.session.get('tokenID')
+    condition, uid = verify_token(token_id)
+    if not condition:
+        return HttpResponse("Unauthorized")
+    
+    if request.method != "POST":
+        return HttpResponse("Form submission pls")
+    
+    ID = request.POST.get("ID")
+    
+    database.child("Books").child(ID).child("ISSUED_BY").set(None, token_id)
+    old_date = database.child("Books").child(ID).child("DATE").get(token_id).val()
+    new_date = date.today()
+    old_date = date(old_date[0], old_date[1], old_date[2])
+    days = (new_date-old_date).days
+    fine = 500*(days//7)
+    return HttpResponse(str(fine))
