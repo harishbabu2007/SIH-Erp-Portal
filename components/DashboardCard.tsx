@@ -7,7 +7,7 @@ interface DashboardCardProps {
   title: string;
   description?: string;
   value: string | number;
-  icon: LucideIcon;
+  icon: typeof LucideIcon;
   trend?: {
     value: number;
     isPositive: boolean;
