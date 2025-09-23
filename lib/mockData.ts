@@ -76,7 +76,7 @@ export interface Exam {
   maxMarks: number;
   obtainedMarks?: number;
   grade?: string;
-  status: 'scheduled' | 'graded' | 'pending';
+  status: 'scheduled' | 'graded' | 'pending' | 'completed';
   semester: number;
 }
 
