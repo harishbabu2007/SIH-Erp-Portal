@@ -302,22 +302,27 @@ export const getStudentData = (studentId: string = 'CS2024001') => {
     'CS2024001': 'Itadori Yuji',
     'EC2024002': 'Nobara Kugisaki'
   };
-  
+
   const studentName = studentNameMap[studentId] || 'Itadori Yuji';
-  
+
   const fees = mockFees.filter(f => f.studentId === studentId);
   const books = mockLibraryBooks.filter(book => book.issuedTo === studentName);
   const room = mockHostelRooms.find(room => room.students.includes(studentName));
-  
+
+  // Get real admission status from mockAdmissions
+  const admissionRecord = mockAdmissions.find(adm => adm.studentName === studentName);
+  const admissionStatus = admissionRecord ? admissionRecord.status : 'pending';
+
   return {
     fees,
     books,
     room,
-    admissionStatus: 'approved',
+    admissionStatus,
     totalFeesPaid: fees.filter(f => f.status === 'paid').reduce((sum, f) => sum + f.amount, 0),
     pendingFees: fees.filter(f => f.status !== 'paid').reduce((sum, f) => sum + f.amount, 0)
   };
 };
+
 
 export const mockSubjects2: Subject[] = [
   {

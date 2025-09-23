@@ -94,9 +94,15 @@ export default function StudentDashboard() {
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-6 mb-8">
           <DashboardCard
             title="Admission Status"
-            value="Approved"
+            value={studentData.admissionStatus.charAt(0).toUpperCase() + studentData.admissionStatus.slice(1)}
             icon={CheckCircle}
-            className="border-green-200 bg-green-50/50"
+            className={
+              studentData.admissionStatus === 'approved'
+                ? 'border-green-200 bg-green-50'
+                : studentData.admissionStatus === 'pending'
+                ? 'border-orange-200 bg-orange-50'
+                : 'border-red-200 bg-red-50'
+            }
             action={{
               label: "View Details",
               onClick: () => router.push('/dashboard/admissions')
