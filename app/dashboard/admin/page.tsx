@@ -16,10 +16,12 @@ import {
   AlertCircle,
   TrendingUp,
   Calendar,
-  Bell
+  Bell,
+  GraduationCap,
+  FileText
 } from 'lucide-react';
 import { authService, User } from '@/lib/auth';
-import { mockMetrics, mockAdmissions, mockFees } from '@/lib/mockData';
+import { mockMetrics, mockAdmissions, mockFees, mockExams } from '@/lib/mockData';
 
 export default function AdminDashboard() {
   const [user, setUser] = useState<User | null>(null);
@@ -40,6 +42,8 @@ export default function AdminDashboard() {
 
   const recentApplications = mockAdmissions.slice(0, 3);
   const recentPayments = mockFees.filter(fee => fee.status === 'paid').slice(0, 3);
+  const upcomingExams = mockExams.filter(exam => exam.status === 'scheduled').slice(0, 3);
+  const recentResults = mockExams.filter(exam => exam.status === 'graded').slice(0, 3);
 
   return (
     <div className="min-h-screen bg-gray-50/40">
@@ -96,6 +100,16 @@ export default function AdminDashboard() {
               onClick: () => router.push('/dashboard/library')
             }}
           />
+          <DashboardCard
+            title="Upcoming Exams"
+            value={mockExams.filter(exam => exam.status === 'scheduled').length}
+            icon={GraduationCap}
+            trend={{ value: 3, isPositive: true }}
+            action={{
+              label: "View Schedule",
+              onClick: () => router.push('/dashboard/exams')
+            }}
+          />
         </div>
 
         {/* Quick Stats */}
@@ -135,7 +149,7 @@ export default function AdminDashboard() {
         </div>
 
         {/* Recent Activity */}
-        <div className="grid gap-6 md:grid-cols-2">
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {/* Recent Applications */}
           <Card>
             <CardHeader>
@@ -204,6 +218,39 @@ export default function AdminDashboard() {
               </div>
             </CardContent>
           </Card>
+
+          {/* Upcoming Exams */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center justify-between">
+                Upcoming Exams
+                <Button variant="outline" size="sm" onClick={() => router.push('/dashboard/exams')}>
+                  View All
+                </Button>
+              </CardTitle>
+              <CardDescription>Scheduled examinations</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {upcomingExams.map((exam) => (
+                  <div key={exam.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <div>
+                      <p className="font-medium">{exam.subjectName}</p>
+                      <p className="text-sm text-muted-foreground">{exam.subjectCode} • {exam.examType}</p>
+                    </div>
+                    <div className="text-right">
+                      <Badge variant="outline">
+                        {exam.status}
+                      </Badge>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {new Date(exam.date).toLocaleDateString()}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
         </div>
 
         {/* Quick Actions */}
@@ -248,6 +295,14 @@ export default function AdminDashboard() {
               >
                 <BookOpen className="h-6 w-6" />
                 <span>Manage Library</span>
+              </Button>
+              <Button 
+                variant="outline" 
+                className="h-20 flex-col space-y-2"
+                onClick={() => router.push('/dashboard/exams')}
+              >
+                <GraduationCap className="h-6 w-6" />
+                <span>Schedule Exams</span>
               </Button>
             </div>
           </CardContent>
