@@ -41,7 +41,10 @@ def verify_token(token_id):
     try:
         user_info = auth.get_account_info(token_id)
         uid = user_info['users'][0]['localId']
-        return True, uid
+        f = database.child("Faculty").child(uid).get(token_id).val()
+        if f!=None:
+            f=f["ACCESS_LEVEL"]
+        return True, uid, f
     except:
         return False, None
 
@@ -69,10 +72,11 @@ def Login(request):
 # @csrf_exempt # purely for test
 def AddStudent(request): 
     token_id = request.session.get('tokenID')
-    condition, uid = verify_token(token_id)
+    condition, uid, f = verify_token(token_id)
     if not condition:
         return HttpResponse("Unauthorized")
-    
+    if f==0 or f==1:
+        return HttpResponse("No Access Granted")
     if request.method != "POST":
         return HttpResponse("Form submission pls")
 
@@ -135,9 +139,11 @@ def AddStudent(request):
 
 def EditStudent(request): 
     token_id = request.session.get('tokenID')
-    condition, uid = verify_token(token_id)
+    condition, uid, f = verify_token(token_id)
     if not condition:
         return HttpResponse("Unauthorized")
+    if f==0 or f==1:
+        return HttpResponse("No Access Granted")
     
     if request.method != "POST":
         return HttpResponse("Form submission pls")
@@ -194,9 +200,11 @@ def EditStudent(request):
 
 def AddFaculty(request): 
     token_id = request.session.get('tokenID')
-    condition, uid = verify_token(token_id)
+    condition, uid, f = verify_token(token_id)
     if not condition:
         return HttpResponse("Unauthorized")
+    if f==0 or f==1 or f==2:
+        return HttpResponse("No Access Granted")
     
     if request.method != "POST":
         return HttpResponse("Form submission pls")
@@ -222,24 +230,28 @@ def AddFaculty(request):
         "EMAIL": EMAIL,
         "DOB": DOB,
         "GENDER": GENDER,
-        "ACCESS_LEVEL": ACCESS_LEVEL,
+        "ACCESS_LEVEL": ACCESS_LEVEL        # 3-> everything, 2->studentdata+books+hostels, 1->books+hostels, 0->nothing
     }
     database.child("Faculty").child(uid).set(data, token_id)
     return HttpResponse("Added Faculty: "+NAME)
 
 def GetStudents(request):
     token_id = request.session.get('tokenID')
-    condition, uid = verify_token(token_id)
+    condition, uid, f = verify_token(token_id)
     if not condition:
         return HttpResponse("Unauthorized")
+    if f==0 or f==1:
+        return HttpResponse("No Access Granted")
     
     return JsonResponse(database.child("Student").get(token_id).val())
 
 def GetFeesData(request):
     token_id = request.session.get('tokenID')
-    condition, uid = verify_token(token_id)
+    condition, uid, f = verify_token(token_id)
     if not condition:
         return HttpResponse("Unauthorized")
+    if f==0 or f==1:
+        return HttpResponse("No Access Granted")
     
     fees_paid = 0
     fees_pending = 0
@@ -252,17 +264,21 @@ def GetFeesData(request):
 
 def GetBooks(request):
     token_id = request.session.get('tokenID')
-    condition, uid = verify_token(token_id)
+    condition, uid, f = verify_token(token_id)
     if not condition:
         return HttpResponse("Unauthorized")
+    if f==0:
+        return HttpResponse("No Access Granted")
     
     return JsonResponse(database.child("Books").get(token_id).val())
 
 def AddBook(request):
     token_id = request.session.get('tokenID')
-    condition, uid = verify_token(token_id)
+    condition, uid, f = verify_token(token_id)
     if not condition:
         return HttpResponse("Unauthorized")
+    if f==0:
+        return HttpResponse("No Access Granted")
     
     if request.method != "POST":
         return HttpResponse("Form submission pls")
@@ -285,9 +301,11 @@ def AddBook(request):
 
 def IssueBook(request):
     token_id = request.session.get('tokenID')
-    condition, uid = verify_token(token_id)
+    condition, uid, f = verify_token(token_id)
     if not condition:
         return HttpResponse("Unauthorized")
+    if f==0:
+        return HttpResponse("No Access Granted")
     
     if request.method != "POST":
         return HttpResponse("Form submission pls")
@@ -301,9 +319,11 @@ def IssueBook(request):
 
 def ReturnBook(request):
     token_id = request.session.get('tokenID')
-    condition, uid = verify_token(token_id)
+    condition, uid, f = verify_token(token_id)
     if not condition:
         return HttpResponse("Unauthorized")
+    if f==0:
+        return HttpResponse("No Access Granted")
     
     if request.method != "POST":
         return HttpResponse("Form submission pls")
