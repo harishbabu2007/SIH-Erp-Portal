@@ -170,7 +170,7 @@ export default function HostelPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{occupancyRate}%</div>
-            <Progress value={typeof occupancyRate === 'number' && !isNaN(occupancyRate) ? occupancyRate : 0} max={100} className="mt-2" />
+            <Progress value={occupancyRate} className="mt-2" />
           </CardContent>
         </Card>
       </div>
@@ -276,7 +276,7 @@ export default function HostelPage() {
                   </div>
                 )}
                 
-                <Progress value={room.capacity > 0 ? (room.occupied / room.capacity) * 100 : 0} max={100} className="h-2" />
+                <Progress value={(room.occupied / room.capacity) * 100} className="h-2" />
               </div>
             </CardContent>
           </Card>
