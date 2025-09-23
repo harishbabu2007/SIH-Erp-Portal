@@ -19,10 +19,12 @@ import {
   Bell,
   Calendar,
   User as UserIcon,
-  CreditCard
+  CreditCard,
+  GraduationCap,
+  Award
 } from 'lucide-react';
 import { authService, User } from '@/lib/auth';
-import { getStudentData } from '@/lib/mockData';
+import { getStudentData, mockExams } from '@/lib/mockData';
 
 export default function StudentDashboard() {
   const [user, setUser] = useState<User | null>(null);
@@ -42,6 +44,12 @@ export default function StudentDashboard() {
   }
 
   const studentData = getStudentData(user.studentId || '');
+  const studentExams = mockExams.filter(exam => exam.semester === 4); // Current semester
+  const upcomingExams = studentExams.filter(exam => exam.status === 'scheduled');
+  const completedExams = studentExams.filter(exam => exam.status === 'graded');
+  const averageScore = completedExams.length > 0 
+    ? Math.round(completedExams.reduce((sum, exam) => sum + (exam.obtainedMarks || 0), 0) / completedExams.length)
+    : 0;
 
   return (
     <div className="min-h-screen bg-gray-50/40">
@@ -83,7 +91,7 @@ export default function StudentDashboard() {
         </Card>
 
         {/* Quick Status Cards */}
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 mb-8">
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-6 mb-8">
           <DashboardCard
             title="Admission Status"
             value="Approved"
@@ -122,6 +130,27 @@ export default function StudentDashboard() {
             action={{
               label: "View Library",
               onClick: () => router.push('/dashboard/library')
+            }}
+          />
+          <DashboardCard
+            title="Upcoming Exams"
+            value={upcomingExams.length}
+            icon={GraduationCap}
+            description="This semester"
+            action={{
+              label: "View Schedule",
+              onClick: () => router.push('/dashboard/exams')
+            }}
+          />
+          <DashboardCard
+            title="Average Score"
+            value={`${averageScore}%`}
+            icon={Award}
+            description="Current semester"
+            className="border-green-200 bg-green-50/50"
+            action={{
+              label: "View Results",
+              onClick: () => router.push('/dashboard/exams')
             }}
           />
         </div>
@@ -190,14 +219,63 @@ export default function StudentDashboard() {
             </CardContent>
           </Card>
 
-          {/* Academic Info */}
+          {/* Exam Status */}
           <Card>
             <CardHeader>
-              <CardTitle>Academic Information</CardTitle>
-              <CardDescription>Your course and academic progress</CardDescription>
+              <CardTitle className="flex items-center justify-between">
+                Exam Status
+                <Button variant="outline" size="sm" onClick={() => router.push('/dashboard/exams')}>
+                  View All
+                </Button>
+              </CardTitle>
+              <CardDescription>Your exam schedule and results</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-6">
+                {/* Upcoming Exams */}
+                <div>
+                  <h4 className="font-semibold mb-3">Upcoming Exams</h4>
+                  <div className="space-y-2">
+                    {upcomingExams.length > 0 ? (
+                      upcomingExams.slice(0, 2).map((exam) => (
+                        <div key={exam.id} className="flex justify-between items-center p-2 bg-blue-50 rounded">
+                          <div>
+                            <p className="text-sm font-medium">{exam.subjectName}</p>
+                            <p className="text-xs text-muted-foreground">{exam.examType}</p>
+                          </div>
+                          <div className="text-xs text-muted-foreground">
+                            {new Date(exam.date).toLocaleDateString()}
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      <p className="text-sm text-muted-foreground">No upcoming exams</p>
+                    )}
+                  </div>
+                </div>
+
+                {/* Recent Results */}
+                {completedExams.length > 0 && (
+                  <div>
+                    <h4 className="font-semibold mb-3">Recent Results</h4>
+                    <div className="space-y-2">
+                      {completedExams.slice(0, 2).map((exam) => (
+                        <div key={exam.id} className="flex justify-between items-center p-2 bg-green-50 rounded">
+                          <div>
+                            <p className="text-sm font-medium">{exam.subjectName}</p>
+                            <p className="text-xs text-muted-foreground">{exam.examType}</p>
+                          </div>
+                          <div className="text-right">
+                            <p className="text-sm font-semibold">{exam.obtainedMarks}/{exam.maxMarks}</p>
+                            <p className="text-xs text-green-600">{exam.grade}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Academic Progress */}
                 <div>
                   <h4 className="font-semibold mb-2">Current Semester</h4>
                   <div className="space-y-2">
@@ -209,31 +287,50 @@ export default function StudentDashboard() {
                     <p className="text-xs text-muted-foreground">60% completed</p>
                   </div>
                 </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
 
-                <div>
-                  <h4 className="font-semibold mb-3">Library Books</h4>
-                  <div className="space-y-2">
-                    {studentData.books.length > 0 ? (
-                      studentData.books.map((book) => (
-                        <div key={book.id} className="flex justify-between items-center p-2 bg-gray-50 rounded">
-                          <div>
-                            <p className="text-sm font-medium">{book.title}</p>
-                            <p className="text-xs text-muted-foreground">{book.author}</p>
-                          </div>
-                          <div className="text-xs text-muted-foreground">
-                            Due: {book.dueDate && new Date(book.dueDate).toLocaleDateString()}
-                          </div>
-                        </div>
-                      ))
-                    ) : (
-                      <p className="text-sm text-muted-foreground">No books currently issued</p>
-                    )}
-                  </div>
-                </div>
+        {/* Additional Info */}
+        <div className="grid gap-6 md:grid-cols-2 mt-8">
+          {/* Library Books */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Library Books</CardTitle>
+              <CardDescription>Currently issued books</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2">
+                {studentData.books.length > 0 ? (
+                  studentData.books.map((book) => (
+                    <div key={book.id} className="flex justify-between items-center p-2 bg-gray-50 rounded">
+                      <div>
+                        <p className="text-sm font-medium">{book.title}</p>
+                        <p className="text-xs text-muted-foreground">{book.author}</p>
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        Due: {book.dueDate && new Date(book.dueDate).toLocaleDateString()}
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-sm text-muted-foreground">No books currently issued</p>
+                )}
+              </div>
+            </CardContent>
+          </Card>
 
+          {/* Hostel Info */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Hostel Information</CardTitle>
+              <CardDescription>Your accommodation details</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
                 {studentData.room && (
                   <div>
-                    <h4 className="font-semibold mb-2">Hostel Information</h4>
                     <div className="p-3 bg-gray-50 rounded-lg">
                       <div className="grid grid-cols-2 gap-2 text-sm">
                         <div>
@@ -254,6 +351,9 @@ export default function StudentDashboard() {
                     </div>
                   </div>
                 )}
+                {!studentData.room && (
+                  <p className="text-sm text-muted-foreground">No room allocated</p>
+                )}
               </div>
             </CardContent>
           </Card>
@@ -269,7 +369,7 @@ export default function StudentDashboard() {
             <CardDescription>Common tasks and resources</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
               <Button 
                 variant="outline" 
                 className="h-20 flex-col space-y-2"
@@ -301,6 +401,14 @@ export default function StudentDashboard() {
               >
                 <BookOpen className="h-6 w-6" />
                 <span>Library</span>
+              </Button>
+              <Button 
+                variant="outline" 
+                className="h-20 flex-col space-y-2"
+                onClick={() => router.push('/dashboard/exams')}
+              >
+                <GraduationCap className="h-6 w-6" />
+                <span>Exams</span>
               </Button>
             </div>
           </CardContent>
