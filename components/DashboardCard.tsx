@@ -1,13 +1,12 @@
 import { ReactNode } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { DivideIcon as LucideIcon } from 'lucide-react';
 
 interface DashboardCardProps {
   title: string;
   description?: string;
   value: string | number;
-  icon: LucideIcon;
+  icon: React.ElementType;
   trend?: {
     value: number;
     isPositive: boolean;
