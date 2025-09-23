@@ -304,11 +304,13 @@ def IssueBook(request):
     condition, uid, f = verify_token(token_id)
     if not condition:
         return HttpResponse("Unauthorized")
-    if f==0:
-        return HttpResponse("No Access Granted")
     
     if request.method != "POST":
         return HttpResponse("Form submission pls")
+    
+    issuedby = database.child("Books").child(ID).child("ISSUED_BY").get(token_id).val()
+    if issuedby!=None:
+        return HttpResponse("Already issued")
     
     ID = request.POST.get("ID")
     todaysdate = date.today()
@@ -322,11 +324,11 @@ def ReturnBook(request):
     condition, uid, f = verify_token(token_id)
     if not condition:
         return HttpResponse("Unauthorized")
-    if f==0:
-        return HttpResponse("No Access Granted")
     
     if request.method != "POST":
         return HttpResponse("Form submission pls")
+    if database.child("Student").child(uid).child("ID").get(token_id).val() != database.child("Books").child(ID).child("ISSUED_BY").get(token_id).val():
+        return HttpResponse("Unissued or issued by someone else")
     
     ID = request.POST.get("ID")
     
