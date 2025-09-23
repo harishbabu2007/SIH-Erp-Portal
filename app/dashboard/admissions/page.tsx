@@ -438,7 +438,7 @@ function ApplicationReview({
   onStatusChange: (id: string, status: 'approved' | 'rejected', remarks?: string) => void;
 }) {
   const [reviewRemarks, setReviewRemarks] = useState('');
-  const [selectedAction, setSelectedAction] = useState<'approve' | 'reject' | null>(null);
+  const [selectedAction, setSelectedAction] = useState<'approved' | 'rejected' | null>(null);
 
   const handleSubmitReview = () => {
     if (selectedAction) {
@@ -477,7 +477,7 @@ function ApplicationReview({
             {application.status === 'pending' && (
               <div className="flex space-x-4">
                 <Button 
-                  onClick={() => setSelectedAction('approve')}
+                  onClick={() => setSelectedAction('approved')}
                   className="bg-green-600 hover:bg-green-700 flex-1"
                 >
                   <CheckCircle className="h-4 w-4 mr-2" />
@@ -485,7 +485,7 @@ function ApplicationReview({
                 </Button>
                 <Button 
                   variant="destructive"
-                  onClick={() => setSelectedAction('reject')}
+                  onClick={() => setSelectedAction('rejected')}
                   className="flex-1"
                 >
                   <XCircle className="h-4 w-4 mr-2" />
@@ -501,7 +501,7 @@ function ApplicationReview({
                   Are you sure you want to {selectedAction} this application?
                   <div className="flex space-x-2 mt-2">
                     <Button size="sm" onClick={handleSubmitReview}>
-                      Confirm {selectedAction === 'approve' ? 'Approval' : 'Rejection'}
+                      Confirm {selectedAction === 'approved' ? 'Approval' : 'Rejection'}
                     </Button>
                     <Button size="sm" variant="outline" onClick={() => setSelectedAction(null)}>
                       Cancel
