@@ -84,10 +84,10 @@ export interface Exam {
 export const mockAdmissions: AdmissionApplication[] = [
   {
     id: '1',
-    studentName: 'Alice Johnson',
-    email: 'alice@example.com',
+    studentName: 'Itadori Yuji',
+    email: 'yuji.itadori@student.college.edu',
     phone: '+1234567890',
-    course: 'Computer Science',
+    course: 'CSE',
     status: 'pending',
     applicationDate: '2024-01-15',
     documents: ['10th Certificate', '12th Certificate', 'Transfer Certificate'],
@@ -95,10 +95,10 @@ export const mockAdmissions: AdmissionApplication[] = [
   },
   {
     id: '2',
-    studentName: 'Bob Wilson',
-    email: 'bob@example.com',
+    studentName: 'Nobara Kugisaki',
+    email: 'nobara.kugisaki@student.college.edu',
     phone: '+1234567891',
-    course: 'Electronics',
+    course: 'ECE',
     status: 'approved',
     applicationDate: '2024-01-10',
     documents: ['10th Certificate', '12th Certificate', 'Transfer Certificate', 'Medical Certificate'],
@@ -106,10 +106,10 @@ export const mockAdmissions: AdmissionApplication[] = [
   },
   {
     id: '3',
-    studentName: 'Carol Davis',
-    email: 'carol@example.com',
+    studentName: 'Megumi Fushiguro',
+    email: 'megumi.fushiguro@student.college.edu',
     phone: '+1234567892',
-    course: 'Mechanical Engineering',
+    course: 'CSE',
     status: 'rejected',
     applicationDate: '2024-01-20',
     documents: ['10th Certificate', '12th Certificate'],
@@ -121,7 +121,7 @@ export const mockFees: FeeRecord[] = [
   {
     id: '1',
     studentId: 'CS2024001',
-    studentName: 'John Doe',
+    studentName: 'Itadori Yuji',
     amount: 50000,
     type: 'tuition',
     status: 'paid',
@@ -132,7 +132,7 @@ export const mockFees: FeeRecord[] = [
   {
     id: '2',
     studentId: 'EC2024002',
-    studentName: 'Jane Smith',
+    studentName: 'Nobara Kugisaki',
     amount: 15000,
     type: 'hostel',
     status: 'pending',
@@ -141,7 +141,7 @@ export const mockFees: FeeRecord[] = [
   {
     id: '3',
     studentId: 'CS2024001',
-    studentName: 'John Doe',
+    studentName: 'Megumi Fushiguro',
     amount: 2000,
     type: 'library',
     status: 'overdue',
@@ -155,7 +155,7 @@ export const mockHostelRooms: HostelRoom[] = [
     roomNumber: '101',
     capacity: 2,
     occupied: 2,
-    students: ['John Doe', 'Mike Johnson'],
+    students: ['Itadori Yuji', 'Nobara Kugisaki'],
     type: 'double',
     floor: 1,
     amenities: ['WiFi', 'AC', 'Study Table', 'Wardrobe']
@@ -165,7 +165,7 @@ export const mockHostelRooms: HostelRoom[] = [
     roomNumber: '102',
     capacity: 2,
     occupied: 1,
-    students: ['Jane Smith'],
+    students: ['Megumi Fushiguro'],
     type: 'double',
     floor: 1,
     amenities: ['WiFi', 'AC', 'Study Table', 'Wardrobe']
@@ -190,7 +190,7 @@ export const mockLibraryBooks: LibraryBook[] = [
     isbn: '978-0262033848',
     category: 'Computer Science',
     status: 'issued',
-    issuedTo: 'John Doe',
+    issuedTo: 'Itadori Yuji',
     issuedDate: '2024-01-20',
     dueDate: '2024-02-20'
   },
@@ -209,7 +209,7 @@ export const mockLibraryBooks: LibraryBook[] = [
     isbn: '978-0073398204',
     category: 'Mechanical',
     status: 'reserved',
-    issuedTo: 'Alice Johnson'
+    issuedTo: 'Megumi Fushiguro'
   }
 ];
 
@@ -229,7 +229,7 @@ export const mockSubjects: Subject[] = [
     code: 'CS201',
     credits: 4,
     semester: 4,
-    instructor: 'Dr. Smith Johnson'
+    instructor: 'Gojo Sensei'
   },
   {
     id: '2',
@@ -237,7 +237,7 @@ export const mockSubjects: Subject[] = [
     code: 'CS202',
     credits: 3,
     semester: 4,
-    instructor: 'Prof. Emily Davis'
+    instructor: 'Gojo Sensei'
   }
 ];
 
@@ -299,11 +299,11 @@ export const mockExams: Exam[] = [
 export const getStudentData = (studentId: string = 'CS2024001') => {
   // Map student IDs to names for filtering
   const studentNameMap: { [key: string]: string } = {
-    'CS2024001': 'John Doe',
-    'EC2024002': 'Jane Smith'
+    'CS2024001': 'Itadori Yuji',
+    'EC2024002': 'Nobara Kugisaki'
   };
   
-  const studentName = studentNameMap[studentId] || 'John Doe';
+  const studentName = studentNameMap[studentId] || 'Itadori Yuji';
   
   const fees = mockFees.filter(f => f.studentId === studentId);
   const books = mockLibraryBooks.filter(book => book.issuedTo === studentName);
@@ -326,6 +326,6 @@ export const mockSubjects2: Subject[] = [
     code: 'CS201',
     credits: 4,
     semester: 4,
-    instructor: 'Dr. Smith Johnson'
+    instructor: 'Gojo Sensei'
   }
 ];

@@ -21,29 +21,29 @@ const mockUsers: User[] = [
   {
     id: '1',
     email: 'admin@college.edu',
-    name: 'Dr. Sarah Johnson',
+    name: 'Gojo Sensei',
     role: 'admin',
-    profileImage: 'https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&fit=crop'
+    profileImage: 'https://avatarfiles.alphacoders.com/365/thumb-1920-365264.jpeg'
   },
   {
     id: '2',
-    email: 'john.doe@student.college.edu',
-    name: 'John Doe',
+    email: 'yuji.itadori@student.college.edu',
+    name: 'Itadori Yuji',
     role: 'student',
     studentId: 'CS2024001',
     course: 'Computer Science',
     year: 2,
-    profileImage: 'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&fit=crop'
+    profileImage: 'https://i.pinimg.com/564x/4c/33/c8/4c33c83087660d070158de0cd52f85e1.jpg'
   },
   {
     id: '3',
-    email: 'jane.smith@student.college.edu',
-    name: 'Jane Smith',
+    email: 'nobara.kugisaki@student.college.edu',
+    name: 'Nobara Kugisaki',
     role: 'student',
     studentId: 'EC2024002',
     course: 'Electronics',
     year: 1,
-    profileImage: 'https://images.pexels.com/photos/733872/pexels-photo-733872.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&fit=crop'
+    profileImage: 'https://i.pinimg.com/736x/ba/5a/70/ba5a7064b4b1f9b260df25901008e21c.jpg'
   }
 ];
 

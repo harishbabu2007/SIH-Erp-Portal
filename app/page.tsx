@@ -45,7 +45,7 @@ export default function LoginPage() {
     if (role === 'admin') {
       setEmail('admin@college.edu');
     } else {
-      setEmail('john.doe@student.college.edu');
+      setEmail('yuji.itadori@student.college.edu');
     }
     setPassword('password123');
   };
@@ -190,7 +190,7 @@ export default function LoginPage() {
         <div className="text-center space-y-2">
           <h3 className="font-semibold text-sm">Demo Credentials</h3>
           <div className="text-xs text-muted-foreground space-y-1">
-            <p><strong>Student:</strong> john.doe@student.college.edu</p>
+            <p><strong>Student:</strong> yuji.itadori@student.college.edu</p>
             <p><strong>Admin:</strong> admin@college.edu</p>
             <p><strong>Password:</strong> password123</p>
           </div>
