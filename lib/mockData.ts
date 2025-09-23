@@ -4,7 +4,7 @@ export interface AdmissionApplication {
   email: string;
   phone: string;
   course: string;
-  status: 'pending' | 'approved' | 'rejected' | 'under_review';
+  status: 'pending' | 'approved' | 'rejected';
   applicationDate: string;
   documents: string[];
   feesPaid: boolean;
@@ -54,6 +54,30 @@ export interface DashboardMetrics {
   pendingAdmissions: number;
   overduePayments: number;
   booksIssued: number;
+}
+
+export interface Subject {
+  id: string;
+  name: string;
+  code: string;
+  credits: number;
+  semester: number;
+  instructor: string;
+}
+
+export interface Exam {
+  id: string;
+  subjectId: string;
+  subjectName: string;
+  subjectCode: string;
+  examType: 'midterm' | 'final' | 'quiz' | 'assignment';
+  date: string;
+  duration: number;
+  maxMarks: number;
+  obtainedMarks?: number;
+  grade?: string;
+  status: 'scheduled' | 'graded' | 'pending';
+  semester: number;
 }
 
 // Mock data
@@ -198,11 +222,93 @@ export const mockMetrics: DashboardMetrics = {
   booksIssued: 450
 };
 
-export const getStudentData = (studentId: string) => {
-  const fees = mockFees.filter(fee => fee.studentId === studentId);
-  const books = mockLibraryBooks.filter(book => book.issuedTo === 'John Doe'); // Mock for current user
-  const room = mockHostelRooms.find(room => room.students.includes('John Doe')); // Mock for current user
+export const mockSubjects: Subject[] = [
+  {
+    id: '1',
+    name: 'Data Structures and Algorithms',
+    code: 'CS201',
+    credits: 4,
+    semester: 4,
+    instructor: 'Dr. Smith Johnson'
+  },
+  {
+    id: '2',
+    name: 'Database Management Systems',
+    code: 'CS202',
+    credits: 3,
+    semester: 4,
+    instructor: 'Prof. Emily Davis'
+  }
+];
 
+export const mockExams: Exam[] = [
+  {
+    id: '1',
+    subjectId: '1',
+    subjectName: 'Data Structures and Algorithms',
+    subjectCode: 'CS201',
+    examType: 'midterm',
+    date: '2024-02-15',
+    duration: 120,
+    maxMarks: 100,
+    obtainedMarks: 85,
+    grade: 'A',
+    status: 'graded',
+    semester: 4
+  },
+  {
+    id: '2',
+    subjectId: '2',
+    subjectName: 'Database Management Systems',
+    subjectCode: 'CS202',
+    examType: 'quiz',
+    date: '2024-02-20',
+    duration: 60,
+    maxMarks: 50,
+    status: 'scheduled',
+    semester: 4
+  },
+  {
+    id: '3',
+    subjectId: '1',
+    subjectName: 'Data Structures and Algorithms',
+    subjectCode: 'CS201',
+    examType: 'assignment',
+    date: '2024-01-30',
+    duration: 0,
+    maxMarks: 25,
+    obtainedMarks: 22,
+    grade: 'B+',
+    status: 'graded',
+    semester: 4
+  },
+  {
+    id: '4',
+    subjectId: '2',
+    subjectName: 'Database Management Systems',
+    subjectCode: 'CS202',
+    examType: 'final',
+    date: '2024-03-15',
+    duration: 180,
+    maxMarks: 100,
+    status: 'scheduled',
+    semester: 4
+  }
+];
+
+export const getStudentData = (studentId: string = 'CS2024001') => {
+  // Map student IDs to names for filtering
+  const studentNameMap: { [key: string]: string } = {
+    'CS2024001': 'John Doe',
+    'EC2024002': 'Jane Smith'
+  };
+  
+  const studentName = studentNameMap[studentId] || 'John Doe';
+  
+  const fees = mockFees.filter(f => f.studentId === studentId);
+  const books = mockLibraryBooks.filter(book => book.issuedTo === studentName);
+  const room = mockHostelRooms.find(room => room.students.includes(studentName));
+  
   return {
     fees,
     books,
@@ -212,3 +318,14 @@ export const getStudentData = (studentId: string) => {
     pendingFees: fees.filter(f => f.status !== 'paid').reduce((sum, f) => sum + f.amount, 0)
   };
 };
+
+export const mockSubjects2: Subject[] = [
+  {
+    id: '1',
+    name: 'Data Structures and Algorithms',
+    code: 'CS201',
+    credits: 4,
+    semester: 4,
+    instructor: 'Dr. Smith Johnson'
+  }
+];

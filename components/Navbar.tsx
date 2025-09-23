@@ -56,6 +56,12 @@ export function Navbar({ user, currentPage = 'dashboard' }: NavbarProps) {
       adminOnly: false 
     },
     { 
+      name: 'Exams', 
+      href: '/dashboard/exams', 
+      icon: GraduationCap,
+      adminOnly: false 
+    },
+    { 
       name: 'Fees', 
       href: '/dashboard/fees', 
       icon: CreditCard,

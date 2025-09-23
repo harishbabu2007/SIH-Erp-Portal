@@ -36,30 +36,13 @@ import {
 import { authService, User } from '@/lib/auth';
 import { mockAdmissions, AdmissionApplication } from '@/lib/mockData';
 
-interface DocumentRequirement {
-  id: string;
-  name: string;
-  required: boolean;
-  description: string;
-}
-
-const REQUIRED_DOCUMENTS: DocumentRequirement[] = [
-  { id: 'tenth', name: '10th Certificate', required: true, description: 'Class 10 mark sheet and certificate' },
-  { id: 'twelfth', name: '12th Certificate', required: true, description: 'Class 12 mark sheet and certificate' },
-  { id: 'transfer', name: 'Transfer Certificate', required: true, description: 'Transfer certificate from previous institution' },
-  { id: 'conduct', name: 'Conduct Certificate', required: true, description: 'Character certificate from previous school' },
-  { id: 'photo', name: 'Passport Photos', required: true, description: '4 passport size photographs' },
-  { id: 'medical', name: 'Medical Certificate', required: false, description: 'Medical fitness certificate' },
-  { id: 'caste', name: 'Caste Certificate', required: false, description: 'Caste certificate (if applicable)' },
-  { id: 'income', name: 'Income Certificate', required: false, description: 'Family income certificate (if applicable)' }
-];
-
 export default function AdmissionsPage() {
   const [user, setUser] = useState<User | null>(null);
   const [applications, setApplications] = useState<AdmissionApplication[]>(mockAdmissions);
   const [selectedApplication, setSelectedApplication] = useState<AdmissionApplication | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [studentApplication, setStudentApplication] = useState<AdmissionApplication | null>(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -69,6 +52,10 @@ export default function AdmissionsPage() {
       return;
     }
     setUser(currentUser);
+    
+    // Find the current user's application
+    const userApplication = mockAdmissions.find(app => app.email === currentUser.email);
+    setStudentApplication(userApplication || null);
   }, [router]);
 
   if (!user) {
@@ -100,9 +87,6 @@ export default function AdmissionsPage() {
     return matchesSearch && matchesStatus;
   });
 
-  const studentApplication = user.role === 'student' 
-    ? applications.find(app => app.email === user.email || app.studentName === user.name)
-    : null;
 
   const getStatusIcon = (status: string) => {
     switch (status) {
@@ -381,116 +365,48 @@ export default function AdmissionsPage() {
                     <Label className="text-sm font-semibold">Course Applied</Label>
                     <p>{studentApplication.course}</p>
                   </div>
-                  <div>
-                    <Label className="text-sm font-semibold">Application Fee</Label>
-                    <p className={studentApplication.feesPaid ? 'text-green-600' : 'text-red-600'}>
-                      {studentApplication.feesPaid ? '✓ Paid' : '✗ Pending'}
-                    </p>
-                  </div>
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          {/* Document Status */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Document Submission Status</CardTitle>
-              <CardDescription>Track your document submission progress</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div className="flex items-center justify-between mb-4">
-                  <span className="text-sm font-medium">Completion Progress</span>
-                  <span className="text-sm text-muted-foreground">
-                    {studentApplication.documents.length}/{REQUIRED_DOCUMENTS.filter(d => d.required).length} required documents
-                  </span>
-                </div>
-                <Progress 
-                  value={(studentApplication.documents.length / REQUIRED_DOCUMENTS.filter(d => d.required).length) * 100} 
-                  className="h-2" 
-                />
-                
-                <div className="grid gap-3 md:grid-cols-2">
-                  {REQUIRED_DOCUMENTS.map((doc) => {
-                    const isSubmitted = studentApplication.documents.includes(doc.name);
-                    return (
-                      <div key={doc.id} className={`p-3 rounded-lg border ${
-                        isSubmitted ? 'bg-green-50 border-green-200' : 
-                        doc.required ? 'bg-red-50 border-red-200' : 'bg-gray-50 border-gray-200'
-                      }`}>
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center space-x-2">
-                            {isSubmitted ? (
-                              <CheckCircle className="h-4 w-4 text-green-600" />
-                            ) : doc.required ? (
-                              <AlertCircle className="h-4 w-4 text-red-600" />
-                            ) : (
-                              <Clock className="h-4 w-4 text-gray-400" />
-                            )}
-                            <div>
-                              <p className="text-sm font-medium">{doc.name}</p>
-                              {doc.required && <Badge variant="outline" className="text-xs">Required</Badge>}
-                            </div>
-                          </div>
-                          <Badge variant={isSubmitted ? 'default' : 'secondary'}>
-                            {isSubmitted ? 'Submitted' : 'Pending'}
-                          </Badge>
-                        </div>
-                        <p className="text-xs text-muted-foreground mt-1">{doc.description}</p>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            </CardContent>
-          </Card>
 
-          {/* Application Details */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Application Details</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ApplicationDetails application={studentApplication} isAdmin={false} />
-            </CardContent>
-          </Card>
         </div>
       ) : (
         <Card>
           <CardHeader>
-            <CardTitle>Submit New Application</CardTitle>
-            <CardDescription>Start your admission process by submitting a new application</CardDescription>
+            <CardTitle>Apply for Admission</CardTitle>
+            <CardDescription>Select your preferred course to apply for admission</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="text-center py-8">
               <UserPlus className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
               <p className="text-muted-foreground mb-4">
-                You haven't submitted an admission application yet. Click below to start your application process.
+                You haven't applied for admission yet. Select your course to apply.
               </p>
               <Dialog>
                 <DialogTrigger asChild>
                   <Button size="lg">
                     <UserPlus className="h-4 w-4 mr-2" />
-                    Start Application
+                    Apply Now
                   </Button>
                 </DialogTrigger>
-                <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+                <DialogContent className="max-w-md">
                   <DialogHeader>
-                    <DialogTitle>New Admission Application</DialogTitle>
-                    <DialogDescription>Fill in your details to start the admission process</DialogDescription>
+                    <DialogTitle>Apply for Admission</DialogTitle>
+                    <DialogDescription>Select your preferred course</DialogDescription>
                   </DialogHeader>
                   <NewApplicationForm onSubmit={(data) => {
                     // Create new application
                     const newApplication: AdmissionApplication = {
                       id: (applications.length + 1).toString(),
-                      studentName: data.studentName,
-                      email: data.email,
-                      phone: data.phone,
+                      studentName: user.name,
+                      email: user.email,
+                      phone: '+91 9876543210', // Default phone
                       course: data.course,
                       status: 'pending',
                       applicationDate: new Date().toISOString().split('T')[0],
-                      documents: data.documents,
+                      documents: [],
                       feesPaid: false
                     };
                     setApplications(prev => [...prev, newApplication]);
@@ -522,7 +438,7 @@ function ApplicationReview({
   onStatusChange: (id: string, status: 'approved' | 'rejected', remarks?: string) => void;
 }) {
   const [reviewRemarks, setReviewRemarks] = useState('');
-  const [selectedAction, setSelectedAction] = useState<'approved' | 'rejected' | null>(null);
+  const [selectedAction, setSelectedAction] = useState<'approve' | 'reject' | null>(null);
 
   const handleSubmitReview = () => {
     if (selectedAction) {
@@ -532,69 +448,17 @@ function ApplicationReview({
     }
   };
 
-  const requiredDocsCount = REQUIRED_DOCUMENTS.filter(d => d.required).length;
-  const submittedRequiredDocs = application.documents.filter(doc => 
-    REQUIRED_DOCUMENTS.find(req => req.name === doc && req.required)
-  ).length;
 
   return (
     <div className="space-y-6">
       <Tabs defaultValue="details" className="w-full">
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="details">Application Details</TabsTrigger>
-          <TabsTrigger value="documents">Documents</TabsTrigger>
           <TabsTrigger value="review">Review & Decision</TabsTrigger>
         </TabsList>
         
         <TabsContent value="details" className="space-y-4">
           <ApplicationDetails application={application} isAdmin={true} />
-        </TabsContent>
-        
-        <TabsContent value="documents" className="space-y-4">
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="text-lg font-semibold">Document Verification</h3>
-              <Badge variant={submittedRequiredDocs === requiredDocsCount ? 'default' : 'destructive'}>
-                {submittedRequiredDocs}/{requiredDocsCount} Required Documents
-              </Badge>
-            </div>
-            
-            <div className="grid gap-3">
-              {REQUIRED_DOCUMENTS.map((doc) => {
-                const isSubmitted = application.documents.includes(doc.name);
-                return (
-                  <div key={doc.id} className={`p-4 rounded-lg border ${
-                    isSubmitted ? 'bg-green-50 border-green-200' : 
-                    doc.required ? 'bg-red-50 border-red-200' : 'bg-gray-50 border-gray-200'
-                  }`}>
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-3">
-                        {isSubmitted ? (
-                          <CheckCircle className="h-5 w-5 text-green-600" />
-                        ) : doc.required ? (
-                          <XCircle className="h-5 w-5 text-red-600" />
-                        ) : (
-                          <Clock className="h-5 w-5 text-gray-400" />
-                        )}
-                        <div>
-                          <p className="font-medium">{doc.name}</p>
-                          <p className="text-sm text-muted-foreground">{doc.description}</p>
-                        </div>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        {doc.required && (
-                          <Badge variant="outline" className="text-xs">Required</Badge>
-                        )}
-                        <Badge variant={isSubmitted ? 'default' : 'secondary'}>
-                          {isSubmitted ? 'Submitted' : 'Missing'}
-                        </Badge>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
         </TabsContent>
         
         <TabsContent value="review" className="space-y-4">
@@ -613,16 +477,15 @@ function ApplicationReview({
             {application.status === 'pending' && (
               <div className="flex space-x-4">
                 <Button 
-                  onClick={() => setSelectedAction('approved')}
+                  onClick={() => setSelectedAction('approve')}
                   className="bg-green-600 hover:bg-green-700 flex-1"
-                  disabled={submittedRequiredDocs < requiredDocsCount}
                 >
                   <CheckCircle className="h-4 w-4 mr-2" />
                   Approve Application
                 </Button>
                 <Button 
                   variant="destructive"
-                  onClick={() => setSelectedAction('rejected')}
+                  onClick={() => setSelectedAction('reject')}
                   className="flex-1"
                 >
                   <XCircle className="h-4 w-4 mr-2" />
@@ -638,22 +501,12 @@ function ApplicationReview({
                   Are you sure you want to {selectedAction} this application?
                   <div className="flex space-x-2 mt-2">
                     <Button size="sm" onClick={handleSubmitReview}>
-                      Confirm {selectedAction === 'approved' ? 'Approval' : 'Rejection'}
+                      Confirm {selectedAction === 'approve' ? 'Approval' : 'Rejection'}
                     </Button>
                     <Button size="sm" variant="outline" onClick={() => setSelectedAction(null)}>
                       Cancel
                     </Button>
                   </div>
-                </AlertDescription>
-              </Alert>
-            )}
-            
-            {submittedRequiredDocs < requiredDocsCount && (
-              <Alert className="border-orange-200 bg-orange-50">
-                <AlertCircle className="h-4 w-4 text-orange-600" />
-                <AlertDescription className="text-orange-800">
-                  <strong>Incomplete Documents:</strong> Student has not submitted all required documents. 
-                  Approval is disabled until all required documents are provided.
                 </AlertDescription>
               </Alert>
             )}
@@ -740,12 +593,8 @@ function ApplicationDetails({
 
 function NewApplicationForm({ onSubmit }: { onSubmit: (data: any) => void }) {
   const [formData, setFormData] = useState({
-    studentName: '',
-    email: '',
-    phone: '',
     course: '',
   });
-  const [selectedDocuments, setSelectedDocuments] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -756,19 +605,12 @@ function NewApplicationForm({ onSubmit }: { onSubmit: (data: any) => void }) {
       // Simulate API call delay
       await new Promise(resolve => setTimeout(resolve, 1000));
       
-      onSubmit({
-        ...formData,
-        documents: selectedDocuments
-      });
+      onSubmit(formData);
       
       // Reset form
       setFormData({
-        studentName: '',
-        email: '',
-        phone: '',
         course: ''
       });
-      setSelectedDocuments([]);
       
       // Close dialog (you might want to pass a close function as prop)
       alert('Application submitted successfully!');
@@ -779,48 +621,9 @@ function NewApplicationForm({ onSubmit }: { onSubmit: (data: any) => void }) {
     }
   };
 
-  const handleDocumentToggle = (docName: string) => {
-    setSelectedDocuments(prev => 
-      prev.includes(docName) 
-        ? prev.filter(d => d !== docName)
-        : [...prev, docName]
-    );
-  };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      <div className="grid gap-4 md:grid-cols-2">
-        <div>
-          <Label htmlFor="name">Full Name *</Label>
-          <Input
-            id="name"
-            value={formData.studentName}
-            onChange={(e) => setFormData({ ...formData, studentName: e.target.value })}
-            placeholder="Enter your full name"
-            required
-          />
-        </div>
-        <div>
-          <Label htmlFor="email">Email Address *</Label>
-          <Input
-            id="email"
-            type="email"
-            value={formData.email}
-            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-            placeholder="your.email@example.com"
-            required
-          />
-        </div>
-        <div>
-          <Label htmlFor="phone">Phone Number *</Label>
-          <Input
-            id="phone"
-            value={formData.phone}
-            onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-            placeholder="+91 9876543210"
-            required
-          />
-        </div>
+    <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <Label htmlFor="course">Course *</Label>
           <Select onValueChange={(value) => setFormData({ ...formData, course: value })}>
@@ -836,46 +639,18 @@ function NewApplicationForm({ onSubmit }: { onSubmit: (data: any) => void }) {
             </SelectContent>
           </Select>
         </div>
-      </div>
-      
-      <div>
-        <Label className="text-base font-semibold">Document Checklist</Label>
-        <p className="text-sm text-muted-foreground mb-4">
-          Select the documents you have ready to submit. Required documents must be submitted for application approval.
-        </p>
-        <div className="grid gap-3 md:grid-cols-2">
-          {REQUIRED_DOCUMENTS.map((doc) => (
-            <div key={doc.id} className="flex items-start space-x-3 p-3 border rounded-lg">
-              <input
-                type="checkbox"
-                id={doc.id}
-                checked={selectedDocuments.includes(doc.name)}
-                onChange={() => handleDocumentToggle(doc.name)}
-                className="mt-1"
-              />
-              <div className="flex-1">
-                <label htmlFor={doc.id} className="text-sm font-medium cursor-pointer">
-                  {doc.name}
-                  {doc.required && <span className="text-red-500 ml-1">*</span>}
-                </label>
-                <p className="text-xs text-muted-foreground">{doc.description}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
       
       <Alert>
         <AlertCircle className="h-4 w-4" />
         <AlertDescription>
-          <strong>Note:</strong> You can submit your application now and upload documents later. 
-          However, your application will only be reviewed once all required documents are submitted.
+          <strong>Note:</strong> Once submitted, your application will be reviewed by the admissions committee. 
+          You will be notified of the decision via email.
         </AlertDescription>
       </Alert>
       
       <div className="flex justify-end space-x-2">
         <Button type="button" variant="outline">Cancel</Button>
-        <Button type="submit" disabled={isSubmitting || !formData.studentName || !formData.email || !formData.phone || !formData.course}>
+        <Button type="submit" disabled={isSubmitting || !formData.course}>
           {isSubmitting ? 'Submitting...' : 'Submit Application'}
         </Button>
       </div>
