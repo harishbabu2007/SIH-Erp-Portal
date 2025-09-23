@@ -344,9 +344,9 @@ export default function HostelPage() {
               <div className="md:col-span-2">
                 <Label className="text-sm font-semibold">Roommates</Label>
                 <div className="mt-2">
-                  {studentData.room.students.filter(s => s !== 'John Doe').length > 0 ? (
+                  {studentData.room.students.filter(s => s !== 'Itadori Yuji').length > 0 ? (
                     <div className="space-y-2">
-                      {studentData.room.students.filter(s => s !== 'John Doe').map((student, index) => (
+                      {studentData.room.students.filter(s => s !== 'Itadori Yuji').map((student, index) => (
                         <div key={index} className="flex items-center p-3 bg-white rounded-lg border">
                           <div className="flex-shrink-0 w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
                             <Users className="h-5 w-5 text-blue-600" />

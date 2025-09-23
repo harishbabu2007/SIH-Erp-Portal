@@ -344,7 +344,7 @@ export default function StudentDashboard() {
                         <div className="col-span-2">
                           <span className="text-muted-foreground">Roommates:</span>
                           <span className="ml-1 font-medium">
-                            {studentData.room.students.filter(s => s !== 'John Doe').join(', ') || 'None'}
+                            {studentData.room.students.filter(s => s !== 'Itadori Yuji').join(', ') || 'None'}
                           </span>
                         </div>
                       </div>
