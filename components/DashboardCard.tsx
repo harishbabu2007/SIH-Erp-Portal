@@ -7,7 +7,7 @@ interface DashboardCardProps {
   title: string;
   description?: string;
   value: string | number;
-  icon: React.ComponentType<{ className?: string }>;
+  icon: LucideIcon;
   trend?: {
     value: number;
     isPositive: boolean;
