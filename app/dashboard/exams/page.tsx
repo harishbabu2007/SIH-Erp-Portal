@@ -226,7 +226,7 @@ export default function ExamsPage() {
                     <SelectContent>
                       <SelectItem value="all">All Status</SelectItem>
                       <SelectItem value="scheduled">Scheduled</SelectItem>
-                      <SelectItem value="completed">Completed</SelectItem>
+                      <SelectItem value="graded">Completed</SelectItem>
                       <SelectItem value="graded">Graded</SelectItem>
                     </SelectContent>
                   </Select>
@@ -272,14 +272,14 @@ export default function ExamsPage() {
                         <Badge 
                           variant={
                             exam.status === 'graded' ? 'default' : 
-                            exam.status === 'completed' ? 'secondary' : 'outline'
+                            exam.status === 'scheduled' ? 'secondary' : 'outline'
                           }
                         >
                           {exam.status}
                         </Badge>
                       </TableCell>
                       <TableCell>
-                        {exam.status === 'completed' && (
+                        {exam.status === 'graded' && (
                           <Dialog>
                             <DialogTrigger asChild>
                               <Button variant="outline" size="sm">
@@ -447,7 +447,7 @@ export default function ExamsPage() {
                         <Badge 
                           variant={
                             exam.status === 'graded' ? 'default' : 
-                            exam.status === 'completed' ? 'secondary' : 'outline'
+                            exam.status === 'scheduled' ? 'secondary' : 'outline'
                           }
                         >
                           {exam.status}
