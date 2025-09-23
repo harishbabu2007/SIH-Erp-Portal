@@ -94,8 +94,8 @@ export default function AdmissionsPage() {
         return <CheckCircle className="h-5 w-5 text-green-600" />;
       case 'rejected':
         return <XCircle className="h-5 w-5 text-red-600" />;
-      case 'under_review':
-        return <Eye className="h-5 w-5 text-blue-600" />;
+      case 'pending':
+        return <Clock className="h-5 w-5 text-orange-600" />;
       default:
         return <Clock className="h-5 w-5 text-orange-600" />;
     }
@@ -107,8 +107,8 @@ export default function AdmissionsPage() {
         return 'bg-green-50 border-green-200 text-green-800';
       case 'rejected':
         return 'bg-red-50 border-red-200 text-red-800';
-      case 'under_review':
-        return 'bg-blue-50 border-blue-200 text-blue-800';
+      case 'pending':
+        return 'bg-orange-50 border-orange-200 text-orange-800';
       default:
         return 'bg-orange-50 border-orange-200 text-orange-800';
     }
@@ -201,8 +201,7 @@ export default function AdmissionsPage() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Applications</SelectItem>
-                  <SelectItem value="pending">Pending Review</SelectItem>
-                  <SelectItem value="under_review">Under Review</SelectItem>
+                  <SelectItem value="pending">Under Review</SelectItem>
                   <SelectItem value="approved">Approved</SelectItem>
                   <SelectItem value="rejected">Rejected</SelectItem>
                 </SelectContent>
@@ -259,7 +258,7 @@ export default function AdmissionsPage() {
                           application.status === 'rejected' ? 'destructive' : 'secondary'
                         }
                       >
-                        {application.status === 'under_review' ? 'Under Review' : application.status}
+                        {application.status === 'pending' ? 'Under Review' : application.status}
                       </Badge>
                     </div>
                   </TableCell>
@@ -318,7 +317,7 @@ export default function AdmissionsPage() {
                   }
                   className="text-lg px-4 py-2"
                 >
-                  {studentApplication.status === 'under_review' ? 'Under Review' : 
+                  {studentApplication.status === 'pending' ? 'Under Review' : 
                    studentApplication.status.charAt(0).toUpperCase() + studentApplication.status.slice(1)}
                 </Badge>
               </CardTitle>
@@ -442,7 +441,8 @@ function ApplicationReview({
 
   const handleSubmitReview = () => {
     if (selectedAction) {
-      onStatusChange(application.id, selectedAction, reviewRemarks);
+      const mappedStatus = selectedAction === 'approve' ? 'approved' : 'rejected';
+      onStatusChange(application.id, mappedStatus, reviewRemarks);
       setSelectedAction(null);
       setReviewRemarks('');
     }
