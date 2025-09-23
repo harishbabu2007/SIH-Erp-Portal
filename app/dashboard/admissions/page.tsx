@@ -442,7 +442,8 @@ function ApplicationReview({
 
   const handleSubmitReview = () => {
     if (selectedAction) {
-      onStatusChange(application.id, selectedAction, reviewRemarks);
+      const status = selectedAction === 'approve' ? 'approved' : 'rejected';
+      onStatusChange(application.id, status, reviewRemarks);
       setSelectedAction(null);
       setReviewRemarks('');
     }
