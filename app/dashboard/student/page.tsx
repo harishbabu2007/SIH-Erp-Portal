@@ -160,7 +160,7 @@ export default function StudentDashboard() {
                     <span>Pending Fees</span>
                     <span className="text-red-600">₹{studentData.pendingFees.toLocaleString()}</span>
                   </div>
-                  <Progress value={75} className="h-2" />
+                  <Progress value={75} max={100} className="h-2" />
                 </div>
                 
                 <div className="space-y-3">
@@ -205,7 +205,7 @@ export default function StudentDashboard() {
                       <span className="text-sm">Semester 4</span>
                       <span className="text-sm">In Progress</span>
                     </div>
-                    <Progress value={60} className="h-2" />
+                    <Progress value={60} max={100} className="h-2" />
                     <p className="text-xs text-muted-foreground">60% completed</p>
                   </div>
                 </div>
