@@ -12,4 +12,8 @@ urlpatterns = [
     path("AddBook/", AddBook),
     path("IssueBook/", IssueBook),
     path("ReturnBook/", ReturnBook),
+    path("AddHostel/", AddHostel),
+    path("AssignHostelRoom/", AssignHostelRoom),
+    path("EmptyHostelRoom/", EmptyHostelRoom),
+    path("GetHostelRoom/", GetHostelRoom),
 ]
