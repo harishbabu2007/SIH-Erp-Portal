@@ -650,7 +650,7 @@ function AddSubjectForm({ onSubmit }: { onSubmit: (data: Omit<Subject, 'id'>) =>
             id="instructor"
             value={formData.instructor}
             onChange={(e) => setFormData({ ...formData, instructor: e.target.value })}
-            placeholder="Dr. John Smith"
+            placeholder="Gojo Sensei"
             required
           />
         </div>
