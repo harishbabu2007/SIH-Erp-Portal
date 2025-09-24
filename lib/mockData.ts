@@ -47,7 +47,7 @@ export interface LibraryBook {
   dueDate?: string;
 }
 
-interface DashboardMetrics {
+export interface DashboardMetrics {
   totalStudents: number;
   totalRevenue: number;
   hostelOccupancy: number;
@@ -324,7 +324,7 @@ export const getStudentData = (studentId: string = 'CS2024001') => {
 };
 
 
-const mockSubjects2: Subject[] = [
+export const mockSubjects2: Subject[] = [
   {
     id: '1',
     name: 'Data Structures and Algorithms',
