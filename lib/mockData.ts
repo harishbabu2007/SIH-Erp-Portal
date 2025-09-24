@@ -131,6 +131,17 @@ export const mockFees: FeeRecord[] = [
   },
   {
     id: '2',
+    studentId: 'CS2024001',
+    studentName: 'Itadori Yuji',
+    amount: 20000,
+    type: 'library',
+    status: 'pending',
+    dueDate: '2024-01-31',
+    paidDate: '2024-01-25',
+    receiptNumber: 'RCP-2024-001'
+  },
+  {
+    id: '3',
     studentId: 'EC2024002',
     studentName: 'Nobara Kugisaki',
     amount: 15000,
@@ -139,8 +150,8 @@ export const mockFees: FeeRecord[] = [
     dueDate: '2024-02-15',
   },
   {
-    id: '3',
-    studentId: 'CS2024001',
+    id: '4',
+    studentId: 'CS2024003',
     studentName: 'Megumi Fushiguro',
     amount: 2000,
     type: 'library',
@@ -300,7 +311,8 @@ export const getStudentData = (studentId: string = 'CS2024001') => {
   // Map student IDs to names for filtering
   const studentNameMap: { [key: string]: string } = {
     'CS2024001': 'Itadori Yuji',
-    'EC2024002': 'Nobara Kugisaki'
+    'EC2024002': 'Nobara Kugisaki',
+    'CS2024003': 'Megumi Fushiguro'
   };
 
   const studentName = studentNameMap[studentId] || 'Itadori Yuji';
@@ -314,6 +326,7 @@ export const getStudentData = (studentId: string = 'CS2024001') => {
   const admissionStatus = admissionRecord ? admissionRecord.status : 'pending';
 
   return {
+    studentName,
     fees,
     books,
     room,
