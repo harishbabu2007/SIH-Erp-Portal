@@ -442,7 +442,7 @@ function ReceiptView({ fee }: { fee: FeeRecord }) {
   return (
     <div className="space-y-6 p-6 bg-white border-2 border-dashed border-gray-300">
       <div className="text-center">
-        <h2 className="text-2xl font-bold">College ERP</h2>
+        <h2 className="text-2xl font-bold">EFA</h2>
         <p className="text-muted-foreground">Payment Receipt</p>
       </div>
       

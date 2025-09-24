@@ -127,7 +127,7 @@ export function Navbar({ user, currentPage = 'dashboard' }: NavbarProps) {
               <div className="flex flex-col space-y-4 py-4">
                 <div className="flex items-center space-x-2 px-2">
                   <GraduationCap className="h-6 w-6 text-primary" />
-                  <span className="text-lg font-bold">College ERP</span>
+                  <span className="text-lg font-bold">EFA</span>
                 </div>
                 <NavigationLinks mobile />
               </div>
@@ -136,7 +136,7 @@ export function Navbar({ user, currentPage = 'dashboard' }: NavbarProps) {
           
           <div className="flex items-center space-x-2">
             <GraduationCap className="h-6 w-6 text-primary" />
-            <span className="text-xl font-bold">College ERP</span>
+            <span className="text-xl font-bold">EFA</span>
           </div>
         </div>
 

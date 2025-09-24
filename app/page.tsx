@@ -57,7 +57,7 @@ export default function LoginPage() {
         <div className="text-center">
           <div className="flex justify-center items-center space-x-2 mb-4">
             <GraduationCap className="h-12 w-12 text-primary" />
-            <h1 className="text-3xl font-bold">College ERP</h1>
+            <h1 className="text-3xl font-bold">EFA</h1>
           </div>
           <p className="text-muted-foreground">
             Sign in to access your dashboard
