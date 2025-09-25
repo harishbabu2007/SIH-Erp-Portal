@@ -3,9 +3,17 @@ from .views import *
 
 urlpatterns = [
     path("AddStudent/", AddStudent),
+    path("EditStudent/", EditStudent),
     path("AddFaculty/", AddFaculty),
-    path("DeleteStudent/", DeleteStudent),
-    path("DeleteFaculty/", DeleteFaculty),
     path("Login/", Login),
-    path("Signup/", Signup),
+    path("GetStudents/", GetStudents),
+    path("GetFeesData/", GetFeesData),
+    path("GetBooks/", GetBooks),
+    path("AddBook/", AddBook),
+    path("IssueBook/", IssueBook),
+    path("ReturnBook/", ReturnBook),
+    path("AddHostel/", AddHostel),
+    path("AssignHostelRoom/", AssignHostelRoom),
+    path("EmptyHostelRoom/", EmptyHostelRoom),
+    path("GetHostelRoom/", GetHostelRoom),
 ]
