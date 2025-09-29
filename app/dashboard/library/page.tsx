@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { Navbar } from '@/components/Navbar';
 import { Button } from '@/components/ui/button';
@@ -31,6 +31,24 @@ export default function LibraryPage() {
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const router = useRouter();
+
+  // Add refs for search bars
+  const adminSearchInputRef = useRef<HTMLInputElement>(null);
+  const studentSearchInputRef = useRef<HTMLInputElement>(null);
+
+  // Focus admin search bar
+  useEffect(() => {
+    if (user?.role === 'admin' && adminSearchInputRef.current) {
+      adminSearchInputRef.current.focus();
+    }
+  }, [user, searchTerm]);
+
+  // Focus student search bar
+  useEffect(() => {
+    if (user?.role !== 'admin' && studentSearchInputRef.current) {
+      studentSearchInputRef.current.focus();
+    }
+  }, [user, searchTerm]);
 
   useEffect(() => {
     const currentUser = authService.getCurrentUser();
@@ -194,6 +212,7 @@ export default function LibraryPage() {
                   className="pl-10"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
+                  ref={adminSearchInputRef}
                 />
               </div>
             </div>
@@ -370,6 +389,7 @@ export default function LibraryPage() {
                   className="pl-10 w-64"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
+                  ref={studentSearchInputRef}
                 />
               </div>
               <Select value={categoryFilter} onValueChange={setCategoryFilter}>

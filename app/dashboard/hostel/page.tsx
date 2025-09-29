@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { Navbar } from '@/components/Navbar';
 import { Button } from '@/components/ui/button';
@@ -185,13 +185,25 @@ export default function HostelPage() {
               <Label htmlFor="search">Search</Label>
               <div className="relative">
                 <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                <Input
-                  id="search"
-                  placeholder="Search by room number or student name..."
-                  className="pl-10"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
+                {/* Add ref and useEffect for focus */}
+                {(() => {
+                  const inputRef = useRef<HTMLInputElement>(null);
+                  useEffect(() => {
+                    if (inputRef.current) {
+                      inputRef.current.focus();
+                    }
+                  }, [searchTerm]);
+                  return (
+                    <Input
+                      id="search"
+                      placeholder="Search by room number or student name..."
+                      className="pl-10"
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      ref={inputRef}
+                    />
+                  );
+                })()}
               </div>
             </div>
             <div>

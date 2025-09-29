@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { Navbar } from '@/components/Navbar';
 import { Button } from '@/components/ui/button';
@@ -33,6 +33,16 @@ export default function FeesPage() {
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [selectedFee, setSelectedFee] = useState<FeeRecord | null>(null);
   const router = useRouter();
+
+  // Add ref for search bar
+  const searchInputRef = useRef<HTMLInputElement>(null);
+
+  // Focus search bar
+  useEffect(() => {
+    if (searchInputRef.current) {
+      searchInputRef.current.focus();
+    }
+  }, [searchTerm]);
 
   useEffect(() => {
     const currentUser = authService.getCurrentUser();
@@ -161,6 +171,7 @@ export default function FeesPage() {
                   className="pl-10"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
+                  ref={searchInputRef}
                 />
               </div>
             </div>
