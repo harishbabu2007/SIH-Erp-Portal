@@ -142,6 +142,7 @@ export default function ExamsPage() {
         <TabsList>
           <TabsTrigger value="exams">Exams</TabsTrigger>
           <TabsTrigger value="subjects">Subjects</TabsTrigger>
+          <TabsTrigger value="grading">Grade Exams</TabsTrigger>
         </TabsList>
 
         <TabsContent value="exams" className="space-y-6">
