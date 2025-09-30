@@ -9,20 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { 
-  CheckCircle, 
-  Clock, 
-  DollarSign, 
-  Building2, 
-  BookOpen, 
-  AlertCircle,
-  Bell,
-  Calendar,
-  User as UserIcon,
-  CreditCard,
-  GraduationCap,
-  Award
-} from 'lucide-react';
+import { CircleCheck as CheckCircle, Clock, DollarSign, Building2, BookOpen, CircleAlert as AlertCircle, Bell, Calendar, User as UserIcon, CreditCard, GraduationCap, Award } from 'lucide-react';
 import { authService, User } from '@/lib/auth';
 import { getStudentData, mockExams } from '@/lib/mockData';
 
