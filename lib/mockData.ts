@@ -233,6 +233,101 @@ export const mockMetrics: DashboardMetrics = {
   booksIssued: 450
 };
 
+export interface StudentGrade {
+  studentId: string;
+  studentName: string;
+  cgpa: number;
+  percentage: number;
+  currentSemester: number;
+  course: string;
+  year: number;
+  subjects: {
+    subjectId: string;
+    subjectName: string;
+    grade: string;
+    marks: number;
+    maxMarks: number;
+  }[];
+}
+
+export const mockStudentGrades: StudentGrade[] = [
+  {
+    studentId: 'CS2024001',
+    studentName: 'Itadori Yuji',
+    cgpa: 8.5,
+    percentage: 85,
+    currentSemester: 4,
+    course: 'CSE',
+    year: 2,
+    subjects: [
+      {
+        subjectId: '1',
+        subjectName: 'Data Structures and Algorithms',
+        grade: 'A',
+        marks: 85,
+        maxMarks: 100
+      },
+      {
+        subjectId: '2',
+        subjectName: 'Database Management Systems',
+        grade: 'B+',
+        marks: 78,
+        maxMarks: 100
+      }
+    ]
+  },
+  {
+    studentId: 'EC2024002',
+    studentName: 'Nobara Kugisaki',
+    cgpa: 9.2,
+    percentage: 92,
+    currentSemester: 4,
+    course: 'ECE',
+    year: 2,
+    subjects: [
+      {
+        subjectId: '3',
+        subjectName: 'Digital Electronics',
+        grade: 'A+',
+        marks: 95,
+        maxMarks: 100
+      },
+      {
+        subjectId: '4',
+        subjectName: 'Signal Processing',
+        grade: 'A',
+        marks: 89,
+        maxMarks: 100
+      }
+    ]
+  },
+  {
+    studentId: 'CS2024003',
+    studentName: 'Megumi Fushiguro',
+    cgpa: 7.8,
+    percentage: 78,
+    currentSemester: 4,
+    course: 'CSE',
+    year: 2,
+    subjects: [
+      {
+        subjectId: '1',
+        subjectName: 'Data Structures and Algorithms',
+        grade: 'B',
+        marks: 75,
+        maxMarks: 100
+      },
+      {
+        subjectId: '2',
+        subjectName: 'Database Management Systems',
+        grade: 'B+',
+        marks: 81,
+        maxMarks: 100
+      }
+    ]
+  }
+];
+
 // Helper function to get monthly revenue
 export const getMonthlyRevenue = (): number => {
   const currentMonth = new Date().getMonth();
