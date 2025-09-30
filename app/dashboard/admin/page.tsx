@@ -7,19 +7,7 @@ import { DashboardCard } from '@/components/DashboardCard';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { 
-  Users, 
-  DollarSign, 
-  Building2, 
-  BookOpen, 
-  UserPlus, 
-  AlertCircle,
-  TrendingUp,
-  Calendar,
-  Bell,
-  GraduationCap,
-  FileText
-} from 'lucide-react';
+import { Users, DollarSign, Building2, BookOpen, UserPlus, CircleAlert as AlertCircle, TrendingUp, Calendar, Bell, GraduationCap, FileText } from 'lucide-react';
 import { authService, User } from '@/lib/auth';
 import { 
   mockMetrics, 

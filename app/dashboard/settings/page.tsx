@@ -10,22 +10,7 @@ import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { 
-  Bell, 
-  Moon, 
-  Globe, 
-  Shield, 
-  Smartphone,
-  Mail,
-  MessageSquare,
-  Volume2,
-  Eye,
-  Lock,
-  Database,
-  Download,
-  Trash2,
-  AlertTriangle
-} from 'lucide-react';
+import { Bell, Moon, Globe, Shield, Smartphone, Mail, MessageSquare, Volume2, Eye, Lock, Database, Download, Trash2, TriangleAlert as AlertTriangle } from 'lucide-react';
 import { authService, User } from '@/lib/auth';
 
 export default function SettingsPage() {

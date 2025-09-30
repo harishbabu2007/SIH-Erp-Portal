@@ -12,19 +12,7 @@ import {
   DropdownMenuTrigger 
 } from '@/components/ui/dropdown-menu';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import { 
-  Menu, 
-  GraduationCap, 
-  LogOut, 
-  User as UserIcon, 
-  Settings,
-  Bell,
-  Home,
-  UserPlus,
-  CreditCard,
-  Building2,
-  BookOpen
-} from 'lucide-react';
+import { Menu, GraduationCap, LogOut, User as UserIcon, Settings, Bell, Chrome as Home, UserPlus, CreditCard, Building2, BookOpen } from 'lucide-react';
 import { authService, User } from '@/lib/auth';
 import { useRouter } from 'next/navigation';
 

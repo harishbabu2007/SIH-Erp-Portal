@@ -11,18 +11,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
-import { 
-  User as UserIcon, 
-  Mail, 
-  Phone, 
-  Calendar,
-  GraduationCap,
-  Shield,
-  Edit,
-  Save,
-  X,
-  Camera
-} from 'lucide-react';
+import { User as UserIcon, Mail, Phone, Calendar, GraduationCap, Shield, CreditCard as Edit, Save, X, Camera } from 'lucide-react';
 import { authService, User } from '@/lib/auth';
 import { getStudentData } from '@/lib/mockData';
 

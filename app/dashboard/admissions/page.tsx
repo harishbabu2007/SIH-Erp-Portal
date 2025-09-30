@@ -15,24 +15,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Progress } from '@/components/ui/progress';
-import { 
-  UserPlus, 
-  Eye, 
-  CheckCircle, 
-  XCircle, 
-  Clock, 
-  Search,
-  Filter,
-  Download,
-  Upload,
-  FileText,
-  AlertCircle,
-  Calendar,
-  User as UserIcon,
-  Mail,
-  Phone,
-  GraduationCap
-} from 'lucide-react';
+import { UserPlus, Eye, CircleCheck as CheckCircle, Circle as XCircle, Clock, Search, Filter, Download, Upload, FileText, CircleAlert as AlertCircle, Calendar, User as UserIcon, Mail, Phone, GraduationCap } from 'lucide-react';
 import { authService, User } from '@/lib/auth';
 import { mockAdmissions, AdmissionApplication } from '@/lib/mockData';
 
