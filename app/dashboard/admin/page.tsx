@@ -10,13 +10,8 @@ import { Badge } from '@/components/ui/badge';
 import { Users, DollarSign, Building2, BookOpen, UserPlus, CircleAlert as AlertCircle, TrendingUp, Calendar, Bell, GraduationCap, FileText } from 'lucide-react';
 import { authService, User } from '@/lib/auth';
 import { 
-  mockMetrics, 
-  mockAdmissions, 
-  mockFees, 
-  mockExams, 
-  getMonthlyRevenue,
-  getTopPerformingStudents,
-  getClassAverage 
+  mockMetrics,
+  getAdminDashboardData
 } from '@/lib/mockData';
 
 export default function AdminDashboard() {
@@ -36,13 +31,7 @@ export default function AdminDashboard() {
     return null;
   }
 
-  const recentApplications = mockAdmissions.slice(0, 3);
-  const recentPayments = mockFees.filter(fee => fee.status === 'paid').slice(0, 3);
-  const upcomingExams = mockExams.filter(exam => exam.status === 'scheduled').slice(0, 3);
-  const recentResults = mockExams.filter(exam => exam.status === 'graded').slice(0, 3);
-  const monthlyRevenue = getMonthlyRevenue();
-  const topStudents = getTopPerformingStudents(3);
-  const classAverage = getClassAverage();
+  const data = getAdminDashboardData();
 
   return (
     <div className="min-h-screen bg-gray-50/40">
@@ -61,7 +50,7 @@ export default function AdminDashboard() {
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 mb-8">
           <DashboardCard
             title="Total Students"
-            value={mockMetrics.totalStudents.toLocaleString()}
+            value={data.totalStudents.toLocaleString()}
             icon={Users}
             trend={{ value: 12, isPositive: true }}
             action={{
@@ -71,7 +60,7 @@ export default function AdminDashboard() {
           />
           <DashboardCard
             title="Total Revenue"
-            value={`₹${(mockMetrics.totalRevenue / 100000).toFixed(1)}L`}
+            value={`₹${(data.totalRevenue / 100000).toFixed(1)}L`}
             icon={DollarSign}
             trend={{ value: 8, isPositive: true }}
             action={{
@@ -81,7 +70,7 @@ export default function AdminDashboard() {
           />
           <DashboardCard
             title="Hostel Occupancy"
-            value={`${mockMetrics.hostelOccupancy}%`}
+            value={`${data.hostelOccupancy}%`}
             icon={Building2}
             trend={{ value: -2, isPositive: false }}
             action={{
@@ -91,7 +80,7 @@ export default function AdminDashboard() {
           />
           <DashboardCard
             title="Books Issued"
-            value={mockMetrics.booksIssued}
+            value={data.booksIssued}
             icon={BookOpen}
             trend={{ value: 5, isPositive: true }}
             action={{
@@ -101,7 +90,7 @@ export default function AdminDashboard() {
           />
           <DashboardCard
             title="Upcoming Exams"
-            value={mockExams.filter(exam => exam.status === 'scheduled').length}
+            value={data.upcomingExamsCount}
             icon={GraduationCap}
             trend={{ value: 3, isPositive: true }}
             action={{
@@ -119,7 +108,7 @@ export default function AdminDashboard() {
               <UserPlus className="h-4 w-4 text-orange-600" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-orange-600">{mockMetrics.pendingAdmissions}</div>
+              <div className="text-2xl font-bold text-orange-600">{data.pendingAdmissions}</div>
               <p className="text-xs text-muted-foreground">Awaiting review</p>
             </CardContent>
           </Card>
@@ -130,7 +119,7 @@ export default function AdminDashboard() {
               <AlertCircle className="h-4 w-4 text-red-600" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-red-600">{mockMetrics.overduePayments}</div>
+              <div className="text-2xl font-bold text-red-600">{data.overduePayments}</div>
               <p className="text-xs text-muted-foreground">Require attention</p>
             </CardContent>
           </Card>
@@ -141,7 +130,7 @@ export default function AdminDashboard() {
               <TrendingUp className="h-4 w-4 text-green-600" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-green-600">₹{(monthlyRevenue / 100000).toFixed(1)}L</div>
+              <div className="text-2xl font-bold text-green-600">₹{(data.monthlyRevenue / 100000).toFixed(1)}L</div>
               <p className="text-xs text-muted-foreground">Revenue collected</p>
             </CardContent>
           </Card>
@@ -162,7 +151,7 @@ export default function AdminDashboard() {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {recentApplications.map((app) => (
+                {data.recentApplications.map((app) => (
                   <div key={app.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                     <div>
                       <p className="font-medium">{app.studentName}</p>
@@ -200,7 +189,7 @@ export default function AdminDashboard() {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {recentPayments.map((payment) => (
+                {data.recentPayments.map((payment) => (
                   <div key={payment.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                     <div>
                       <p className="font-medium">{payment.studentName}</p>
@@ -231,7 +220,7 @@ export default function AdminDashboard() {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {upcomingExams.map((exam) => (
+                {data.upcomingExams.map((exam) => (
                   <div key={exam.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                     <div>
                       <p className="font-medium">{exam.subjectName}</p>
@@ -266,9 +255,9 @@ export default function AdminDashboard() {
               <div className="space-y-4">
                 <div className="text-center p-3 bg-blue-50 rounded-lg">
                   <p className="text-sm text-muted-foreground">Class Average CGPA</p>
-                  <p className="text-2xl font-bold text-blue-600">{classAverage.toFixed(2)}</p>
+                  <p className="text-2xl font-bold text-blue-600">{data.classAverage.toFixed(2)}</p>
                 </div>
-                {topStudents.map((student, index) => (
+                {data.topStudents.map((student, index) => (
                   <div key={student.studentId} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                     <div className="flex items-center space-x-3">
                       <div className="flex items-center justify-center w-6 h-6 bg-yellow-100 text-yellow-800 rounded-full text-xs font-bold">

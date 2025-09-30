@@ -47,18 +47,9 @@ export default function FeesPage() {
   }
 
   const handlePayFee = (feeId: string) => {
-    setFees(prev => 
-      prev.map(fee => 
-        fee.id === feeId 
-          ? { 
-              ...fee, 
-              status: 'paid', 
-              paidDate: new Date().toISOString().split('T')[0],
-              receiptNumber: `RCP-${Date.now()}`
-            }
-          : fee
-      )
-    );
+    updateFeeStatus(feeId, 'paid');
+    // trigger re-render by cloning from source (mockFees mutated in place)
+    setFees([...mockFees]);
   };
 
   const filteredFees = user.role === 'admin' 
@@ -296,7 +287,9 @@ export default function FeesPage() {
             <Calendar className="h-4 w-4 text-blue-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-blue-600">Feb 15</div>
+            <div className="text-2xl font-bold text-blue-600">
+              {studentData.nextFee ? new Date(studentData.nextFee.dueDate).toLocaleDateString() : '—'}
+            </div>
           </CardContent>
         </Card>
       </div>

@@ -9,7 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogClose } from '@/components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { 
   BookOpen, 
@@ -517,7 +517,9 @@ function AddBookForm() {
         </Select>
       </div>
       <div className="flex justify-end space-x-2">
-        <Button type="button" variant="outline">Cancel</Button>
+        <DialogClose asChild>
+          <Button type="button" variant="outline">Cancel</Button>
+        </DialogClose>
         <Button type="submit">Add Book</Button>
       </div>
     </form>
@@ -573,7 +575,9 @@ function IssueBookForm({
         />
       </div>
       <div className="flex justify-end space-x-2">
-        <Button type="button" variant="outline">Cancel</Button>
+        <DialogClose asChild>
+          <Button type="button" variant="outline">Cancel</Button>
+        </DialogClose>
         <Button type="submit">Issue Book</Button>
       </div>
     </form>

@@ -164,13 +164,13 @@ export function Navbar({ user, currentPage = 'dashboard' }: NavbarProps) {
                 </div>
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>
+              <DropdownMenuItem onSelect={() => router.push('/dashboard/profile')}>
                 <UserIcon className="mr-2 h-4 w-4" />
-                <span onClick={() => router.push('/dashboard/profile')}>Profile</span>
+                <span>Profile</span>
               </DropdownMenuItem>
-              <DropdownMenuItem>
+              <DropdownMenuItem onSelect={() => router.push('/dashboard/settings')}>
                 <Settings className="mr-2 h-4 w-4" />
-                <span onClick={() => router.push('/dashboard/settings')}>Settings</span>
+                <span>Settings</span>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={handleLogout} className="text-red-600">

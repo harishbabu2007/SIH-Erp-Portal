@@ -9,7 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogClose } from '@/components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { BookOpen, Plus, Search, Calendar, Clock, Award, CreditCard as Edit, GraduationCap, FileText, TrendingUp, User as UserIcon } from 'lucide-react';
@@ -23,6 +23,8 @@ export default function ExamsPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [examTypeFilter, setExamTypeFilter] = useState<string>('all');
   const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [activeTab, setActiveTab] = useState('exams');
+  const [selectedExamForGrading, setSelectedExamForGrading] = useState<string>('');
   const router = useRouter();
 
   useEffect(() => {
@@ -78,12 +80,19 @@ export default function ExamsPage() {
     return matchesSearch && matchesType && matchesStatus;
   });
 
-  const studentExams = user.role === 'student' ? filteredExams : filteredExams;
-  const completedExams = studentExams.filter(exam => exam.status === 'graded');
+  const studentExams = filteredExams;
   const upcomingExams = studentExams.filter(exam => exam.status === 'scheduled');
-  const totalMarks = completedExams.reduce((sum, exam) => sum + (exam.obtainedMarks || 0), 0);
-  const maxTotalMarks = completedExams.reduce((sum, exam) => sum + exam.maxMarks, 0);
-  const averagePercentage = maxTotalMarks > 0 ? Math.round((totalMarks / maxTotalMarks) * 100) : 0;
+  // Student-specific results derived from mock data
+  const studentResults = user.role === 'student' ? getStudentExamResults(user.studentId || '') : [];
+  const resultByExamId = new Map<string, ReturnType<typeof getStudentExamResults>[number]>(
+    studentResults.map(r => [r.id, r])
+  );
+  const studentTotalMarks = studentResults.reduce((sum, r) => sum + (r.obtainedMarks || 0), 0);
+  const studentMaxTotalMarks = studentResults.reduce((sum, r) => sum + r.maxMarks, 0);
+  const studentAveragePercentage = studentMaxTotalMarks > 0 ? Math.round((studentTotalMarks / studentMaxTotalMarks) * 100) : 0;
+  const completedExamsCount = user.role === 'student'
+    ? studentResults.length
+    : studentExams.filter(e => e.status === 'completed').length;
 
   const AdminView = () => (
     <div className="space-y-6">
@@ -126,10 +135,11 @@ export default function ExamsPage() {
         </div>
       </div>
 
-      <Tabs defaultValue="exams" className="space-y-6">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
         <TabsList>
           <TabsTrigger value="exams">Exams</TabsTrigger>
           <TabsTrigger value="subjects">Subjects</TabsTrigger>
+          <TabsTrigger value="grading">Grading</TabsTrigger>
         </TabsList>
 
         <TabsContent value="exams" className="space-y-6">
@@ -159,7 +169,7 @@ export default function ExamsPage() {
                 <Award className="h-4 w-4 text-green-600" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold text-green-600">{completedExams.length}</div>
+                <div className="text-2xl font-bold text-green-600">{completedExamsCount}</div>
               </CardContent>
             </Card>
             <Card>
@@ -280,24 +290,13 @@ export default function ExamsPage() {
                       </TableCell>
                       <TableCell>
                         {exam.status === 'completed' && (
-                          <Dialog>
-                            <DialogTrigger asChild>
-                              <Button variant="outline" size="sm">
-                                <Edit className="h-4 w-4 mr-1" />
-                                Add Result
-                              </Button>
-                            </DialogTrigger>
-                            <DialogContent>
-                              <DialogHeader>
-                                <DialogTitle>Update Exam Result</DialogTitle>
-                                <DialogDescription>Add marks and grade for {exam.subjectName}</DialogDescription>
-                              </DialogHeader>
-                              <UpdateResultForm 
-                                exam={exam} 
-                                onSubmit={(marks, grade) => handleUpdateExamResult(exam.id, marks, grade)} 
-                              />
-                            </DialogContent>
-                          </Dialog>
+                          <Button variant="outline" size="sm" onClick={() => {
+                            setSelectedExamForGrading(exam.id);
+                            setActiveTab('grading');
+                          }}>
+                            <Edit className="h-4 w-4 mr-1" />
+                            Go to Grading
+                          </Button>
                         )}
                       </TableCell>
                     </TableRow>
@@ -340,6 +339,10 @@ export default function ExamsPage() {
             </CardContent>
           </Card>
         </TabsContent>
+
+        <TabsContent value="grading" className="space-y-6">
+          <GradingSection selectedExamId={selectedExamForGrading} onExamSelect={setSelectedExamForGrading} />
+        </TabsContent>
       </Tabs>
     </div>
   );
@@ -368,7 +371,7 @@ export default function ExamsPage() {
             <TrendingUp className="h-4 w-4 text-green-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-600">{averagePercentage}%</div>
+            <div className="text-2xl font-bold text-green-600">{studentAveragePercentage}%</div>
           </CardContent>
         </Card>
         <Card className="border-orange-200 bg-orange-50/50">
@@ -437,7 +440,10 @@ export default function ExamsPage() {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {studentExams.map((exam) => (
+                {studentExams.map((exam) => {
+                  const result = resultByExamId.get(exam.id);
+                  const status = result ? 'graded' : exam.status;
+                  return (
                   <div key={exam.id} className="flex items-center justify-between p-4 border rounded-lg">
                     <div>
                       <p className="font-medium">{exam.subjectName}</p>
@@ -446,27 +452,27 @@ export default function ExamsPage() {
                         <Badge variant="outline" className="capitalize">{exam.examType}</Badge>
                         <Badge 
                           variant={
-                            exam.status === 'graded' ? 'default' : 
-                            exam.status === 'completed' ? 'secondary' : 'outline'
+                            status === 'graded' ? 'default' : 
+                            status === 'completed' ? 'secondary' : 'outline'
                           }
                         >
-                          {exam.status}
+                          {status}
                         </Badge>
                       </div>
                     </div>
                     <div className="text-right">
                       <p className="font-semibold">{new Date(exam.date).toLocaleDateString()}</p>
-                      {exam.status === 'graded' && exam.obtainedMarks !== undefined && (
+                      {result && (
                         <div className="mt-1">
                           <p className="text-sm">
-                            <span className="font-medium">{exam.obtainedMarks}/{exam.maxMarks}</span>
-                            <span className="ml-2 text-muted-foreground">({exam.grade})</span>
+                            <span className="font-medium">{result.obtainedMarks}/{exam.maxMarks}</span>
+                            <span className="ml-2 text-muted-foreground">({result.grade})</span>
                           </p>
                         </div>
                       )}
                     </div>
                   </div>
-                ))}
+                );})}
               </div>
             </CardContent>
           </Card>
@@ -506,10 +512,12 @@ export default function ExamsPage() {
               <CardDescription>Your graded exam results and performance</CardDescription>
             </CardHeader>
             <CardContent>
-              {completedExams.length > 0 ? (
+              {studentResults.length > 0 ? (
                 <div className="space-y-4">
-                  {completedExams.map((exam) => (
-                    <div key={exam.id} className="flex items-center justify-between p-4 border rounded-lg">
+                  {studentResults.map((result) => {
+                    const exam = exams.find(e => e.id === result.id)!;
+                    return (
+                    <div key={result.id} className="flex items-center justify-between p-4 border rounded-lg">
                       <div>
                         <p className="font-medium">{exam.subjectName}</p>
                         <p className="text-sm text-muted-foreground">{exam.subjectCode} • {exam.examType}</p>
@@ -517,17 +525,17 @@ export default function ExamsPage() {
                       </div>
                       <div className="text-right">
                         <div className="text-lg font-bold">
-                          {exam.obtainedMarks}/{exam.maxMarks}
+                          {result.obtainedMarks}/{exam.maxMarks}
                         </div>
                         <div className="flex items-center space-x-2">
-                          <Badge className="bg-green-100 text-green-800">{exam.grade}</Badge>
+                          <Badge className="bg-green-100 text-green-800">{result.grade}</Badge>
                           <span className="text-sm text-muted-foreground">
-                            {Math.round(((exam.obtainedMarks || 0) / exam.maxMarks) * 100)}%
+                            {Math.round(((result.obtainedMarks || 0) / exam.maxMarks) * 100)}%
                           </span>
                         </div>
                       </div>
                     </div>
-                  ))}
+                  );})}
                 </div>
               ) : (
                 <div className="text-center py-8">
@@ -552,12 +560,24 @@ export default function ExamsPage() {
   );
 }
 
-function GradingSection() {
-  const [selectedExamId, setSelectedExamId] = useState<string>('');
+function GradingSection({ 
+  selectedExamId: propSelectedExamId = '', 
+  onExamSelect 
+}: { 
+  selectedExamId?: string; 
+  onExamSelect?: (examId: string) => void; 
+}) {
+  const [selectedExamId, setSelectedExamId] = useState<string>(propSelectedExamId);
   const [studentsForExam, setStudentsForExam] = useState<any[]>([]);
   const [grades, setGrades] = useState<{ [studentId: string]: { marks: string; grade: string } }>({});
 
   const gradedExams = mockExams.filter(exam => exam.status === 'completed' || exam.status === 'graded');
+
+  useEffect(() => {
+    if (propSelectedExamId && propSelectedExamId !== selectedExamId) {
+      setSelectedExamId(propSelectedExamId);
+    }
+  }, [propSelectedExamId]);
 
   useEffect(() => {
     if (selectedExamId) {
@@ -568,8 +588,8 @@ function GradingSection() {
       const initialGrades: { [studentId: string]: { marks: string; grade: string } } = {};
       students.forEach(student => {
         initialGrades[student.studentId] = {
-          marks: student.obtainedMarks?.toString() || '',
-          grade: student.grade || ''
+          marks: student.obtainedMarks != null ? String(student.obtainedMarks) : '',
+          grade: student.grade ?? ''
         };
       });
       setGrades(initialGrades);
@@ -611,7 +631,10 @@ function GradingSection() {
       <CardContent className="space-y-6">
         <div>
           <Label htmlFor="exam-select">Select Exam</Label>
-          <Select value={selectedExamId} onValueChange={setSelectedExamId}>
+          <Select value={selectedExamId} onValueChange={(value) => {
+            setSelectedExamId(value);
+            onExamSelect?.(value);
+          }}>
             <SelectTrigger>
               <SelectValue placeholder="Choose an exam to grade" />
             </SelectTrigger>
@@ -805,7 +828,9 @@ function AddSubjectForm({ onSubmit }: { onSubmit: (data: Omit<Subject, 'id'>) =>
         </div>
       </div>
       <div className="flex justify-end space-x-2">
-        <Button type="button" variant="outline">Cancel</Button>
+        <DialogClose asChild>
+          <Button type="button" variant="outline">Cancel</Button>
+        </DialogClose>
         <Button type="submit" disabled={isSubmitting}>
           {isSubmitting ? 'Adding...' : 'Add Subject'}
         </Button>
@@ -937,7 +962,9 @@ function AddExamForm({
         </div>
       </div>
       <div className="flex justify-end space-x-2">
-        <Button type="button" variant="outline">Cancel</Button>
+        <DialogClose asChild>
+          <Button type="button" variant="outline">Cancel</Button>
+        </DialogClose>
         <Button type="submit" disabled={isSubmitting}>
           {isSubmitting ? 'Scheduling...' : 'Schedule Exam'}
         </Button>
@@ -1028,7 +1055,9 @@ function UpdateResultForm({
       </div>
       
       <div className="flex justify-end space-x-2">
-        <Button type="button" variant="outline">Cancel</Button>
+        <DialogClose asChild>
+          <Button type="button" variant="outline">Cancel</Button>
+        </DialogClose>
         <Button type="submit" disabled={isSubmitting || !obtainedMarks || !grade}>
           {isSubmitting ? 'Updating...' : 'Update Result'}
         </Button>
