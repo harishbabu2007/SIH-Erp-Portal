@@ -12,21 +12,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { 
-  BookOpen, 
-  Plus, 
-  Search,
-  Calendar,
-  Clock,
-  Award,
-  Edit,
-  GraduationCap,
-  FileText,
-  TrendingUp,
-  User as UserIcon
-} from 'lucide-react';
+import { BookOpen, Plus, Search, Calendar, Clock, Award, CreditCard as Edit, GraduationCap, FileText, TrendingUp, User as UserIcon } from 'lucide-react';
 import { authService, User } from '@/lib/auth';
-import { mockSubjects, mockExams, Subject, Exam } from '@/lib/mockData';
+import { mockSubjects, mockExams, Subject, Exam, updateStudentExamResult, getStudentsForExam, getStudentExamResults } from '@/lib/mockData';
 
 export default function ExamsPage() {
   const [user, setUser] = useState<User | null>(null);
@@ -561,6 +549,155 @@ export default function ExamsPage() {
         {user.role === 'admin' ? <AdminView /> : <StudentView />}
       </main>
     </div>
+  );
+}
+
+function GradingSection() {
+  const [selectedExamId, setSelectedExamId] = useState<string>('');
+  const [studentsForExam, setStudentsForExam] = useState<any[]>([]);
+  const [grades, setGrades] = useState<{ [studentId: string]: { marks: string; grade: string } }>({});
+
+  const gradedExams = mockExams.filter(exam => exam.status === 'completed' || exam.status === 'graded');
+
+  useEffect(() => {
+    if (selectedExamId) {
+      const students = getStudentsForExam(selectedExamId);
+      setStudentsForExam(students);
+      
+      // Initialize grades state
+      const initialGrades: { [studentId: string]: { marks: string; grade: string } } = {};
+      students.forEach(student => {
+        initialGrades[student.studentId] = {
+          marks: student.obtainedMarks?.toString() || '',
+          grade: student.grade || ''
+        };
+      });
+      setGrades(initialGrades);
+    }
+  }, [selectedExamId]);
+
+  const handleGradeChange = (studentId: string, field: 'marks' | 'grade', value: string) => {
+    setGrades(prev => ({
+      ...prev,
+      [studentId]: {
+        ...prev[studentId],
+        [field]: value
+      }
+    }));
+  };
+
+  const handleSaveGrades = () => {
+    Object.entries(grades).forEach(([studentId, gradeData]) => {
+      if (gradeData.marks && gradeData.grade) {
+        updateStudentExamResult(studentId, selectedExamId, parseInt(gradeData.marks), gradeData.grade);
+      }
+    });
+    
+    alert('Grades saved successfully!');
+    
+    // Refresh the students data
+    if (selectedExamId) {
+      const students = getStudentsForExam(selectedExamId);
+      setStudentsForExam(students);
+    }
+  };
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Grade Student Exams</CardTitle>
+        <CardDescription>Select an exam and enter grades for students</CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-6">
+        <div>
+          <Label htmlFor="exam-select">Select Exam</Label>
+          <Select value={selectedExamId} onValueChange={setSelectedExamId}>
+            <SelectTrigger>
+              <SelectValue placeholder="Choose an exam to grade" />
+            </SelectTrigger>
+            <SelectContent>
+              {gradedExams.map(exam => (
+                <SelectItem key={exam.id} value={exam.id}>
+                  {exam.subjectName} - {exam.examType} ({new Date(exam.date).toLocaleDateString()})
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        {selectedExamId && studentsForExam.length > 0 && (
+          <div className="space-y-4">
+            <div className="flex justify-between items-center">
+              <h4 className="font-semibold">Student Grades</h4>
+              <Button onClick={handleSaveGrades}>Save All Grades</Button>
+            </div>
+            
+            <div className="border rounded-lg">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Student Name</TableHead>
+                    <TableHead>Student ID</TableHead>
+                    <TableHead>Obtained Marks</TableHead>
+                    <TableHead>Grade</TableHead>
+                    <TableHead>Status</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {studentsForExam.map((student) => {
+                    const selectedExam = mockExams.find(e => e.id === selectedExamId);
+                    return (
+                      <TableRow key={student.studentId}>
+                        <TableCell className="font-medium">{student.studentName}</TableCell>
+                        <TableCell>{student.studentId}</TableCell>
+                        <TableCell>
+                          <div className="flex items-center space-x-2">
+                            <Input
+                              type="number"
+                              placeholder="0"
+                              className="w-20"
+                              value={grades[student.studentId]?.marks || ''}
+                              onChange={(e) => handleGradeChange(student.studentId, 'marks', e.target.value)}
+                              max={selectedExam?.maxMarks}
+                            />
+                            <span className="text-sm text-muted-foreground">/ {selectedExam?.maxMarks}</span>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <Select
+                            value={grades[student.studentId]?.grade || ''}
+                            onValueChange={(value) => handleGradeChange(student.studentId, 'grade', value)}
+                          >
+                            <SelectTrigger className="w-20">
+                              <SelectValue placeholder="Grade" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="A+">A+</SelectItem>
+                              <SelectItem value="A">A</SelectItem>
+                              <SelectItem value="B+">B+</SelectItem>
+                              <SelectItem value="B">B</SelectItem>
+                              <SelectItem value="C+">C+</SelectItem>
+                              <SelectItem value="C">C</SelectItem>
+                              <SelectItem value="D">D</SelectItem>
+                              <SelectItem value="F">F</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant={student.isGraded ? 'default' : 'secondary'}>
+                            {student.isGraded ? 'Graded' : 'Pending'}
+                          </Badge>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            </div>
+          </div>
+        )}
+      </CardContent>
+    </Card>
   );
 }
 
