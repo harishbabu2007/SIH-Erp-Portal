@@ -31,7 +31,7 @@ const mockUsers: User[] = [
     name: 'Itadori Yuji',
     role: 'student',
     studentId: 'CS2024001',
-    course: 'Computer Science',
+    course: 'CSE',
     year: 2,
     profileImage: 'https://i.pinimg.com/564x/4c/33/c8/4c33c83087660d070158de0cd52f85e1.jpg'
   },
@@ -41,9 +41,69 @@ const mockUsers: User[] = [
     name: 'Nobara Kugisaki',
     role: 'student',
     studentId: 'EC2024002',
-    course: 'Electronics',
-    year: 1,
+    course: 'ECE',
+    year: 2,
     profileImage: 'https://i.pinimg.com/736x/ba/5a/70/ba5a7064b4b1f9b260df25901008e21c.jpg'
+  },
+  {
+    id: '4',
+    email: 'megumi.fushiguro@student.college.edu',
+    name: 'Megumi Fushiguro',
+    role: 'student',
+    studentId: 'CS2024003',
+    course: 'CSE',
+    year: 2,
+    profileImage: 'https://i.pinimg.com/564x/8a/2b/8a/8a2b8a4c4c4c4c4c4c4c4c4c4c4c4c4c.jpg'
+  },
+  {
+    id: '5',
+    email: 'gojo.satoru@student.college.edu',
+    name: 'Gojo Satoru',
+    role: 'student',
+    studentId: 'CS2024004',
+    course: 'CSE',
+    year: 2,
+    profileImage: 'https://i.pinimg.com/564x/9b/3c/9b/9b3c9b5d5d5d5d5d5d5d5d5d5d5d5d5d.jpg'
+  },
+  {
+    id: '6',
+    email: 'sukuna.ryomen@student.college.edu',
+    name: 'Sukuna Ryomen',
+    role: 'student',
+    studentId: 'EC2024005',
+    course: 'ECE',
+    year: 2,
+    profileImage: 'https://i.pinimg.com/564x/7c/4d/7c/7c4d7c6e6e6e6e6e6e6e6e6e6e6e6e6e.jpg'
+  },
+  {
+    id: '7',
+    email: 'maki.zenin@student.college.edu',
+    name: 'Maki Zenin',
+    role: 'student',
+    studentId: 'ME2024006',
+    course: 'ME',
+    year: 2,
+    profileImage: 'https://i.pinimg.com/564x/6d/5e/6d/6d5e6d7f7f7f7f7f7f7f7f7f7f7f7f7f.jpg'
+  },
+  {
+    id: '8',
+    email: 'toge.inumaki@student.college.edu',
+    name: 'Toge Inumaki',
+    role: 'student',
+    studentId: 'CS2024007',
+    course: 'CSE',
+    year: 2,
+    profileImage: 'https://i.pinimg.com/564x/5e/6f/5e/5e6f5e8f8f8f8f8f8f8f8f8f8f8f8f8f.jpg'
+  },
+  {
+    id: '9',
+    email: 'panda@student.college.edu',
+    name: 'Panda',
+    role: 'student',
+    studentId: 'EC2024008',
+    course: 'ECE',
+    year: 2,
+    profileImage: 'https://i.pinimg.com/564x/4f/7g/4f/4f7g4f9f9f9f9f9f9f9f9f9f9f9f9f9f.jpg'
   }
 ];
 

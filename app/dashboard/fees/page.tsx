@@ -249,6 +249,7 @@ export default function FeesPage() {
   );
 
   const studentData = getStudentData(user.studentId || '');
+  const isApproved = studentData.admissionStatus === 'approved';
 
   const StudentView = () => (
     <div className="space-y-6">
@@ -256,6 +257,23 @@ export default function FeesPage() {
         <h1 className="text-3xl font-bold">My Fees</h1>
         <p className="text-muted-foreground">View and manage your fee payments</p>
       </div>
+
+      {!isApproved ? (
+        <Card className="border-orange-200 bg-orange-50">
+          <CardContent className="p-8 text-center">
+            <AlertCircle className="h-16 w-16 text-orange-500 mx-auto mb-4" />
+            <h3 className="text-xl font-semibold mb-2">Admission Not Approved</h3>
+            <p className="text-muted-foreground mb-4">
+              Your admission is currently <span className="capitalize font-medium">{studentData.admissionStatus}</span>. 
+              Fee information will be available once your admission is approved.
+            </p>
+            <Button variant="outline" onClick={() => router.push('/dashboard/admissions')}>
+              View Admission Status
+            </Button>
+          </CardContent>
+        </Card>
+      ) : (
+        <>
 
       {/* Student Summary */}
       <div className="grid gap-6 md:grid-cols-3">
@@ -349,6 +367,8 @@ export default function FeesPage() {
           </div>
         </CardContent>
       </Card>
+        </>
+      )}
     </div>
   );
 

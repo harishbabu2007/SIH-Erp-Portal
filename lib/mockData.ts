@@ -287,7 +287,7 @@ export const mockHostelRooms: HostelRoom[] = [
     roomNumber: '101',
     capacity: 2,
     occupied: 2,
-    students: ['Itadori Yuji', 'Nobara Kugisaki'],
+    students: ['Nobara Kugisaki', 'Gojo Satoru'],
     type: 'double',
     floor: 1,
     amenities: ['WiFi', 'AC', 'Study Table', 'Wardrobe']
@@ -296,8 +296,8 @@ export const mockHostelRooms: HostelRoom[] = [
     id: '2',
     roomNumber: '102',
     capacity: 2,
-    occupied: 1,
-    students: ['Megumi Fushiguro'],
+    occupied: 2,
+    students: ['Sukuna Ryomen', 'Panda'],
     type: 'double',
     floor: 1,
     amenities: ['WiFi', 'AC', 'Study Table', 'Wardrobe']
@@ -322,7 +322,7 @@ export const mockLibraryBooks: LibraryBook[] = [
     isbn: '978-0262033848',
     category: 'Computer Science',
     status: 'issued',
-    issuedTo: 'Itadori Yuji',
+    issuedTo: 'Nobara Kugisaki',
     issuedDate: '2024-01-20',
     dueDate: '2024-02-20'
   },
@@ -341,7 +341,7 @@ export const mockLibraryBooks: LibraryBook[] = [
     isbn: '978-0073398204',
     category: 'Mechanical',
     status: 'reserved',
-    issuedTo: 'Megumi Fushiguro'
+    issuedTo: 'Panda'
   }
 ];
 
@@ -585,6 +585,12 @@ const getApprovedStudentIds = (): string[] => {
 
 export const getTotalApprovedStudents = (): number =>
   mockAdmissions.filter(app => app.status === 'approved').length;
+
+export const getApprovedStudentNames = (): string[] => {
+  return mockAdmissions
+    .filter(app => app.status === 'approved')
+    .map(app => app.studentName);
+};
 
 export const getTotalRevenueCollected = (): number => {
   const approvedStudentIds = getApprovedStudentIds();
@@ -847,6 +853,8 @@ export const getStudentData = (studentId: string = 'CS2024001') => {
       books: [],
       room: null,
       admissionStatus,
+      course: null,
+      year: null,
       totalFeesPaid: 0,
       pendingFees: 0,
       nextFee: null,
@@ -878,6 +886,8 @@ export const getStudentData = (studentId: string = 'CS2024001') => {
     books,
     room,
     admissionStatus,
+    course: admissionRecord?.course || null,
+    year: admissionRecord ? 2 : null, // Default to 2nd year for approved students
     totalFeesPaid,
     pendingFees: pendingFeesAmount,
     nextFee: nextFee ? {

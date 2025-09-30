@@ -31,9 +31,12 @@ export default function StudentDashboard() {
   }
 
   const studentData = getStudentData(user.studentId || '');
-  const studentExams = mockExams.filter(exam => exam.semester === 4); // Current semester
+  
+  // Only show academic data if student is approved
+  const isApproved = studentData.admissionStatus === 'approved';
+  const studentExams = isApproved ? mockExams.filter(exam => exam.semester === 4) : [];
   const upcomingExams = studentExams.filter(exam => exam.status === 'scheduled');
-  const studentResults = getStudentExamResults(user.studentId || '');
+  const studentResults = isApproved ? getStudentExamResults(user.studentId || '') : [];
   const completedExams = studentResults.map(result => {
     const exam = studentExams.find(e => e.id === result.id);
     return exam ? { ...exam, obtainedMarks: result.obtainedMarks, grade: result.grade } : null;
@@ -73,11 +76,11 @@ export default function StudentDashboard() {
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Course</p>
-                <p className="font-semibold">{user.course || 'Computer Science'}</p>
+                <p className="font-semibold">{studentData.course || 'N/A'}</p>
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Year</p>
-                <p className="font-semibold">{user.year || 2} Year</p>
+                <p className="font-semibold">{studentData.year ? `${studentData.year} Year` : 'N/A'}</p>
               </div>
             </div>
           </CardContent>
@@ -103,59 +106,67 @@ export default function StudentDashboard() {
           />
           <DashboardCard
             title="Fees Paid"
-            value={`₹${(studentData.totalFeesPaid / 1000)}K`}
+            value={isApproved ? `₹${(studentData.totalFeesPaid / 1000)}K` : 'N/A'}
             icon={DollarSign}
-            description={`₹${(studentData.pendingFees / 1000)}K pending`}
-            action={{
+            description={isApproved ? `₹${(studentData.pendingFees / 1000)}K pending` : 'Not available'}
+            action={isApproved ? {
               label: "Pay Fees",
               onClick: () => router.push('/dashboard/fees')
-            }}
+            } : undefined}
           />
           <DashboardCard
             title="Hostel Room"
-            value={studentData.room ? studentData.room.roomNumber : 'Not Allocated'}
+            value={isApproved ? (studentData.room ? studentData.room.roomNumber : 'Not Allocated') : 'N/A'}
             icon={Building2}
-            description={studentData.room ? `Floor ${studentData.room.floor}` : 'Apply for hostel'}
-            action={{
+            description={isApproved ? (studentData.room ? `Floor ${studentData.room.floor}` : 'Apply for hostel') : 'Not available'}
+            action={isApproved ? {
               label: "View Details",
               onClick: () => router.push('/dashboard/hostel')
-            }}
+            } : undefined}
           />
           <DashboardCard
             title="Books Issued"
-            value={studentData.books.length}
+            value={isApproved ? studentData.books.length : 0}
             icon={BookOpen}
-            description="From library"
-            action={{
+            description={isApproved ? "From library" : "Not available"}
+            action={isApproved ? {
               label: "View Library",
               onClick: () => router.push('/dashboard/library')
-            }}
+            } : undefined}
           />
           <DashboardCard
             title="Upcoming Exams"
-            value={upcomingExams.length}
+            value={isApproved ? upcomingExams.length : 0}
             icon={GraduationCap}
-            description="This semester"
-            action={{
+            description={isApproved ? "This semester" : "Not available"}
+            action={isApproved ? {
               label: "View Schedule",
               onClick: () => router.push('/dashboard/exams')
-            }}
+            } : undefined}
           />
           <DashboardCard
             title="Average Score"
-            value={`${averageScore.toFixed(1)}%`}
+            value={isApproved ? `${averageScore.toFixed(1)}%` : "N/A"}
             icon={Award}
-            description={`CGPA: ${cgpa.toFixed(2)}`}
-            className="border-green-200 bg-green-50/50"
-            action={{
+            description={isApproved ? `CGPA: ${cgpa.toFixed(2)}` : "Not available"}
+            className={isApproved ? "border-green-200 bg-green-50/50" : "border-gray-200 bg-gray-50"}
+            action={isApproved ? {
               label: "View Results",
               onClick: () => router.push('/dashboard/exams')
-            }}
+            } : undefined}
           />
         </div>
 
         {/* Notifications */}
-        {studentData.nextFee ? (
+        {!isApproved ? (
+          <Alert className="mb-8 border-orange-200 bg-orange-50">
+            <AlertCircle className="h-4 w-4 text-orange-600" />
+            <AlertDescription className="text-orange-800">
+              <strong>Admission Status:</strong> Your admission is currently <span className="capitalize font-medium">{studentData.admissionStatus}</span>. 
+              Academic and financial information will be available once your admission is approved.
+            </AlertDescription>
+          </Alert>
+        ) : studentData.nextFee ? (
           <Alert className="mb-8">
             <Bell className="h-4 w-4" />
             <AlertDescription>
@@ -188,44 +199,55 @@ export default function StudentDashboard() {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span>Total Fees Paid</span>
-                    <span>₹{studentData.totalFeesPaid.toLocaleString()}</span>
+                {!isApproved ? (
+                  <div className="text-center py-8">
+                    <AlertCircle className="h-12 w-12 text-orange-500 mx-auto mb-4" />
+                    <p className="text-muted-foreground">
+                      Fee information is not available until your admission is approved.
+                    </p>
                   </div>
-                  <div className="flex justify-between text-sm">
-                    <span>Pending Fees</span>
-                    <span className="text-red-600">₹{studentData.pendingFees.toLocaleString()}</span>
-                  </div>
-                  <Progress 
-                    value={studentData.totalFeesPaid > 0 ? (studentData.totalFeesPaid / (studentData.totalFeesPaid + studentData.pendingFees)) * 100 : 0} 
-                    className="h-2" 
-                  />
-                </div>
-                
-                <div className="space-y-3">
-                  {studentData.fees.slice(0, 3).map((fee) => (
-                    <div key={fee.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                      <div>
-                        <p className="font-medium capitalize">{fee.type} Fee</p>
-                        <p className="text-sm text-muted-foreground">
-                          Due: {new Date(fee.dueDate).toLocaleDateString()}
-                        </p>
+                ) : (
+                  <>
+                    <div className="space-y-2">
+                      <div className="flex justify-between text-sm">
+                        <span>Total Fees Paid</span>
+                        <span>₹{studentData.totalFeesPaid.toLocaleString()}</span>
                       </div>
-                      <div className="text-right">
-                        <p className="font-semibold">₹{fee.amount.toLocaleString()}</p>
-                        <Badge 
-                          variant={
-                            fee.status === 'paid' ? 'default' : 
-                            fee.status === 'overdue' ? 'destructive' : 'secondary'
-                          }
-                        >
-                          {fee.status}
-                        </Badge>
+                      <div className="flex justify-between text-sm">
+                        <span>Pending Fees</span>
+                        <span className="text-red-600">₹{studentData.pendingFees.toLocaleString()}</span>
                       </div>
+                      <Progress 
+                        value={studentData.totalFeesPaid > 0 ? (studentData.totalFeesPaid / (studentData.totalFeesPaid + studentData.pendingFees)) * 100 : 0} 
+                        className="h-2" 
+                      />
                     </div>
-                  ))}
-                </div>
+                    
+                    <div className="space-y-3">
+                      {studentData.fees.slice(0, 3).map((fee) => (
+                        <div key={fee.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                          <div>
+                            <p className="font-medium capitalize">{fee.type} Fee</p>
+                            <p className="text-sm text-muted-foreground">
+                              Due: {new Date(fee.dueDate).toLocaleDateString()}
+                            </p>
+                          </div>
+                          <div className="text-right">
+                            <p className="font-semibold">₹{fee.amount.toLocaleString()}</p>
+                            <Badge 
+                              variant={
+                                fee.status === 'paid' ? 'default' : 
+                                fee.status === 'overdue' ? 'destructive' : 'secondary'
+                              }
+                            >
+                              {fee.status}
+                            </Badge>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </>
+                )}
               </div>
             </CardContent>
           </Card>
@@ -243,61 +265,75 @@ export default function StudentDashboard() {
             </CardHeader>
             <CardContent>
               <div className="space-y-6">
-                {/* Upcoming Exams */}
-                <div>
-                  <h4 className="font-semibold mb-3">Upcoming Exams</h4>
-                  <div className="space-y-2">
-                    {upcomingExams.length > 0 ? (
-                      upcomingExams.slice(0, 2).map((exam) => (
-                        <div key={exam.id} className="flex justify-between items-center p-2 bg-blue-50 rounded">
-                          <div>
-                            <p className="text-sm font-medium">{exam.subjectName}</p>
-                            <p className="text-xs text-muted-foreground">{exam.examType}</p>
-                          </div>
-                          <div className="text-xs text-muted-foreground">
-                            {new Date(exam.date).toLocaleDateString()}
-                          </div>
+                {!isApproved ? (
+                  <div className="text-center py-8">
+                    <AlertCircle className="h-12 w-12 text-orange-500 mx-auto mb-4" />
+                    <p className="text-muted-foreground">
+                      Academic information is not available until your admission is approved.
+                    </p>
+                    <p className="text-sm text-muted-foreground mt-2">
+                      Current status: <span className="capitalize font-medium">{studentData.admissionStatus}</span>
+                    </p>
+                  </div>
+                ) : (
+                  <>
+                    {/* Upcoming Exams */}
+                    <div>
+                      <h4 className="font-semibold mb-3">Upcoming Exams</h4>
+                      <div className="space-y-2">
+                        {upcomingExams.length > 0 ? (
+                          upcomingExams.slice(0, 2).map((exam) => (
+                            <div key={exam.id} className="flex justify-between items-center p-2 bg-blue-50 rounded">
+                              <div>
+                                <p className="text-sm font-medium">{exam.subjectName}</p>
+                                <p className="text-xs text-muted-foreground">{exam.examType}</p>
+                              </div>
+                              <div className="text-xs text-muted-foreground">
+                                {new Date(exam.date).toLocaleDateString()}
+                              </div>
+                            </div>
+                          ))
+                        ) : (
+                          <p className="text-sm text-muted-foreground">No upcoming exams</p>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Recent Results */}
+                    {completedExams.length > 0 && (
+                      <div>
+                        <h4 className="font-semibold mb-3">Recent Results</h4>
+                        <div className="space-y-2">
+                          {completedExams.slice(0, 2).map((exam) => (
+                            <div key={exam.id} className="flex justify-between items-center p-2 bg-green-50 rounded">
+                              <div>
+                                <p className="text-sm font-medium">{exam.subjectName}</p>
+                                <p className="text-xs text-muted-foreground">{exam.examType}</p>
+                              </div>
+                              <div className="text-right">
+                                <p className="text-sm font-semibold">{exam.obtainedMarks}/{exam.maxMarks}</p>
+                                <p className="text-xs text-green-600">{exam.grade}</p>
+                              </div>
+                            </div>
+                          ))}
                         </div>
-                      ))
-                    ) : (
-                      <p className="text-sm text-muted-foreground">No upcoming exams</p>
+                      </div>
                     )}
-                  </div>
-                </div>
 
-                {/* Recent Results */}
-                {completedExams.length > 0 && (
-                  <div>
-                    <h4 className="font-semibold mb-3">Recent Results</h4>
-                    <div className="space-y-2">
-                      {completedExams.slice(0, 2).map((exam) => (
-                        <div key={exam.id} className="flex justify-between items-center p-2 bg-green-50 rounded">
-                          <div>
-                            <p className="text-sm font-medium">{exam.subjectName}</p>
-                            <p className="text-xs text-muted-foreground">{exam.examType}</p>
-                          </div>
-                          <div className="text-right">
-                            <p className="text-sm font-semibold">{exam.obtainedMarks}/{exam.maxMarks}</p>
-                            <p className="text-xs text-green-600">{exam.grade}</p>
-                          </div>
+                    {/* Academic Progress */}
+                    <div>
+                      <h4 className="font-semibold mb-2">Current Semester</h4>
+                      <div className="space-y-2">
+                        <div className="flex justify-between">
+                          <span className="text-sm">Semester {currentSemester}</span>
+                          <span className="text-sm">In Progress</span>
                         </div>
-                      ))}
+                        <Progress value={((currentSemester % 2) * 50) + 25} className="h-2" />
+                        <p className="text-xs text-muted-foreground">{((currentSemester % 2) * 50) + 25}% completed</p>
+                      </div>
                     </div>
-                  </div>
+                  </>
                 )}
-
-                {/* Academic Progress */}
-                <div>
-                  <h4 className="font-semibold mb-2">Current Semester</h4>
-                  <div className="space-y-2">
-                    <div className="flex justify-between">
-                      <span className="text-sm">Semester {currentSemester}</span>
-                      <span className="text-sm">In Progress</span>
-                    </div>
-                    <Progress value={((currentSemester % 2) * 50) + 25} className="h-2" />
-                    <p className="text-xs text-muted-foreground">{((currentSemester % 2) * 50) + 25}% completed</p>
-                  </div>
-                </div>
               </div>
             </CardContent>
           </Card>
@@ -313,7 +349,14 @@ export default function StudentDashboard() {
             </CardHeader>
             <CardContent>
               <div className="space-y-2">
-                {studentData.books.length > 0 ? (
+                {!isApproved ? (
+                  <div className="text-center py-6">
+                    <AlertCircle className="h-10 w-10 text-orange-500 mx-auto mb-3" />
+                    <p className="text-sm text-muted-foreground">
+                      Library access is not available until your admission is approved.
+                    </p>
+                  </div>
+                ) : studentData.books.length > 0 ? (
                   studentData.books.map((book) => (
                     <div key={book.id} className="flex justify-between items-center p-2 bg-gray-50 rounded">
                       <div>
@@ -340,7 +383,14 @@ export default function StudentDashboard() {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {studentData.room && (
+                {!isApproved ? (
+                  <div className="text-center py-6">
+                    <AlertCircle className="h-10 w-10 text-orange-500 mx-auto mb-3" />
+                    <p className="text-sm text-muted-foreground">
+                      Hostel information is not available until your admission is approved.
+                    </p>
+                  </div>
+                ) : studentData.room ? (
                   <div>
                     <div className="p-3 bg-gray-50 rounded-lg">
                       <div className="grid grid-cols-2 gap-2 text-sm">
@@ -361,8 +411,7 @@ export default function StudentDashboard() {
                       </div>
                     </div>
                   </div>
-                )}
-                {!studentData.room && (
+                ) : (
                   <p className="text-sm text-muted-foreground">No room allocated</p>
                 )}
               </div>

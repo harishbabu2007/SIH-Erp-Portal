@@ -9,7 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogClose } from '@/components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Progress } from '@/components/ui/progress';
 import { 
@@ -21,10 +21,12 @@ import {
   Bed,
   Wifi,
   Fan,
-  Zap
+  Zap,
+  CircleAlert as AlertCircle
 } from 'lucide-react';
 import { authService, User } from '@/lib/auth';
 import { mockHostelRooms, HostelRoom, getStudentData } from '@/lib/mockData';
+import { StudentSelector } from '@/components/StudentSelector';
 
 
 
@@ -300,6 +302,7 @@ export default function HostelPage() {
   );
 
   const studentData = getStudentData(user.studentId || '');
+  const isApproved = studentData.admissionStatus === 'approved';
 
   const StudentView = () => (
     <div className="space-y-6">
@@ -307,6 +310,23 @@ export default function HostelPage() {
         <h1 className="text-3xl font-bold">My Hostel</h1>
         <p className="text-muted-foreground">View your hostel room information and details</p>
       </div>
+
+      {!isApproved ? (
+        <Card className="border-orange-200 bg-orange-50">
+          <CardContent className="p-8 text-center">
+            <AlertCircle className="h-16 w-16 text-orange-500 mx-auto mb-4" />
+            <h3 className="text-xl font-semibold mb-2">Admission Not Approved</h3>
+            <p className="text-muted-foreground mb-4">
+              Your admission is currently <span className="capitalize font-medium">{studentData.admissionStatus}</span>. 
+              Hostel information will be available once your admission is approved.
+            </p>
+            <Button variant="outline" onClick={() => router.push('/dashboard/admissions')}>
+              View Admission Status
+            </Button>
+          </CardContent>
+        </Card>
+      ) : (
+        <>
 
       {studentData.room ? (
         <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
@@ -429,6 +449,8 @@ export default function HostelPage() {
           </div>
         </CardContent>
       </Card>
+        </>
+      )}
     </div>
   );
 
@@ -536,7 +558,9 @@ function AddRoomForm() {
       </div>
 
       <div className="flex justify-end space-x-2">
-        <Button type="button" variant="outline">Cancel</Button>
+        <DialogClose asChild>
+          <Button type="button" variant="outline">Cancel</Button>
+        </DialogClose>
         <Button type="submit">Add Room</Button>
       </div>
     </form>
@@ -568,12 +592,10 @@ function AllocateStudentForm({
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
         <Label htmlFor="student-name">Student Name</Label>
-        <Input
-          id="student-name"
+        <StudentSelector
           value={studentName}
-          onChange={(e) => setStudentName(e.target.value)}
-          placeholder="Enter student name"
-          required
+          onValueChange={setStudentName}
+          placeholder="Search and select approved student"
         />
       </div>
       <div>
@@ -592,7 +614,9 @@ function AllocateStudentForm({
         </Select>
       </div>
       <div className="flex justify-end space-x-2">
-        <Button type="button" variant="outline">Cancel</Button>
+        <DialogClose asChild>
+          <Button type="button" variant="outline">Cancel</Button>
+        </DialogClose>
         <Button type="submit">Allocate Student</Button>
       </div>
     </form>

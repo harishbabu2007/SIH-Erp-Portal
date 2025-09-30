@@ -19,10 +19,12 @@ import {
   Download,
   UserPlus,
   RotateCcw,
-  Calendar
+  Calendar,
+  CircleAlert as AlertCircle
 } from 'lucide-react';
 import { authService, User } from '@/lib/auth';
 import { mockLibraryBooks, LibraryBook, getStudentData } from '@/lib/mockData';
+import { StudentSelector } from '@/components/StudentSelector';
 
 export default function LibraryPage() {
   const [user, setUser] = useState<User | null>(null);
@@ -337,6 +339,7 @@ export default function LibraryPage() {
   );
 
   const studentData = getStudentData(user.studentId || '');
+  const isApproved = studentData.admissionStatus === 'approved';
 
   const StudentView = () => (
     <div className="space-y-6">
@@ -344,6 +347,23 @@ export default function LibraryPage() {
         <h1 className="text-3xl font-bold">Library</h1>
         <p className="text-muted-foreground">Browse books and view your issued books</p>
       </div>
+
+      {!isApproved ? (
+        <Card className="border-orange-200 bg-orange-50">
+          <CardContent className="p-8 text-center">
+            <AlertCircle className="h-16 w-16 text-orange-500 mx-auto mb-4" />
+            <h3 className="text-xl font-semibold mb-2">Admission Not Approved</h3>
+            <p className="text-muted-foreground mb-4">
+              Your admission is currently <span className="capitalize font-medium">{studentData.admissionStatus}</span>. 
+              Library access will be available once your admission is approved.
+            </p>
+            <Button variant="outline" onClick={() => router.push('/dashboard/admissions')}>
+              View Admission Status
+            </Button>
+          </CardContent>
+        </Card>
+      ) : (
+        <>
 
       {/* Student's Issued Books */}
       {studentData.books.length > 0 && (
@@ -443,6 +463,8 @@ export default function LibraryPage() {
           </div>
         </CardContent>
       </Card>
+        </>
+      )}
     </div>
   );
 
@@ -566,12 +588,10 @@ function IssueBookForm({
       </div>
       <div>
         <Label htmlFor="student">Student Name</Label>
-        <Input
-          id="student"
+        <StudentSelector
           value={studentName}
-          onChange={(e) => setStudentName(e.target.value)}
-          placeholder="Enter student name"
-          required
+          onValueChange={setStudentName}
+          placeholder="Search and select approved student"
         />
       </div>
       <div className="flex justify-end space-x-2">

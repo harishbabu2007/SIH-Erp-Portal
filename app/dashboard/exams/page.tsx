@@ -12,9 +12,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogClose } from '@/components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { BookOpen, Plus, Search, Calendar, Clock, Award, CreditCard as Edit, GraduationCap, FileText, TrendingUp, User as UserIcon } from 'lucide-react';
+import { BookOpen, Plus, Search, Calendar, Clock, Award, CreditCard as Edit, GraduationCap, FileText, TrendingUp, User as UserIcon, CircleAlert as AlertCircle } from 'lucide-react';
 import { authService, User } from '@/lib/auth';
-import { mockSubjects, mockExams, Subject, Exam, updateStudentExamResult, getStudentsForExam, getStudentExamResults } from '@/lib/mockData';
+import { mockSubjects, mockExams, Subject, Exam, updateStudentExamResult, getStudentsForExam, getStudentExamResults, getStudentData } from '@/lib/mockData';
 
 export default function ExamsPage() {
   const [user, setUser] = useState<User | null>(null);
@@ -82,8 +82,13 @@ export default function ExamsPage() {
 
   const studentExams = filteredExams;
   const upcomingExams = studentExams.filter(exam => exam.status === 'scheduled');
-  // Student-specific results derived from mock data
-  const studentResults = user.role === 'student' ? getStudentExamResults(user.studentId || '') : [];
+  
+  // Get student data to check admission status
+  const studentData = user.role === 'student' ? getStudentData(user.studentId || '') : null;
+  const isApproved = studentData?.admissionStatus === 'approved';
+  
+  // Student-specific results derived from mock data (only for approved students)
+  const studentResults = (user.role === 'student' && isApproved) ? getStudentExamResults(user.studentId || '') : [];
   const resultByExamId = new Map<string, ReturnType<typeof getStudentExamResults>[number]>(
     studentResults.map(r => [r.id, r])
   );
@@ -354,52 +359,71 @@ export default function ExamsPage() {
         <p className="text-muted-foreground">View your subjects, exam schedule, and results</p>
       </div>
 
-      {/* Performance Summary */}
-      <div className="grid gap-6 md:grid-cols-4">
-        <Card className="border-blue-200 bg-blue-50/50">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Current Semester</CardTitle>
-            <GraduationCap className="h-4 w-4 text-blue-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-blue-600">Semester 4</div>
+      {!isApproved ? (
+        <Card className="border-orange-200 bg-orange-50">
+          <CardContent className="p-8 text-center">
+            <AlertCircle className="h-16 w-16 text-orange-500 mx-auto mb-4" />
+            <h3 className="text-xl font-semibold mb-2">Admission Not Approved</h3>
+            <p className="text-muted-foreground mb-4">
+              Your admission is currently <span className="capitalize font-medium">{studentData?.admissionStatus}</span>. 
+              Academic information including exams, subjects, and results will be available once your admission is approved.
+            </p>
+            <Button variant="outline" onClick={() => router.push('/dashboard/admissions')}>
+              View Admission Status
+            </Button>
           </CardContent>
         </Card>
-        <Card className="border-green-200 bg-green-50/50">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Average Score</CardTitle>
-            <TrendingUp className="h-4 w-4 text-green-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-green-600">{studentAveragePercentage}%</div>
-          </CardContent>
-        </Card>
-        <Card className="border-orange-200 bg-orange-50/50">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Upcoming Exams</CardTitle>
-            <Calendar className="h-4 w-4 text-orange-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-orange-600">{upcomingExams.length}</div>
-          </CardContent>
-        </Card>
-        <Card className="border-purple-200 bg-purple-50/50">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Subjects</CardTitle>
-            <BookOpen className="h-4 w-4 text-purple-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-purple-600">{subjects.length}</div>
-          </CardContent>
-        </Card>
-      </div>
+      ) : (
+        <>
+          {/* Performance Summary */}
+          <div className="grid gap-6 md:grid-cols-4">
+            <Card className="border-blue-200 bg-blue-50/50">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Current Semester</CardTitle>
+                <GraduationCap className="h-4 w-4 text-blue-600" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-blue-600">Semester {studentData?.currentSemester || 4}</div>
+              </CardContent>
+            </Card>
+            <Card className="border-green-200 bg-green-50/50">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Average Score</CardTitle>
+                <TrendingUp className="h-4 w-4 text-green-600" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-green-600">{studentAveragePercentage}%</div>
+              </CardContent>
+            </Card>
+            <Card className="border-orange-200 bg-orange-50/50">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Upcoming Exams</CardTitle>
+                <Calendar className="h-4 w-4 text-orange-600" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-orange-600">{upcomingExams.length}</div>
+              </CardContent>
+            </Card>
+            <Card className="border-purple-200 bg-purple-50/50">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Total Subjects</CardTitle>
+                <BookOpen className="h-4 w-4 text-purple-600" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-purple-600">{subjects.length}</div>
+              </CardContent>
+            </Card>
+          </div>
+        </>
+      )}
 
-      <Tabs defaultValue="exams" className="space-y-6">
-        <TabsList>
-          <TabsTrigger value="exams">My Exams</TabsTrigger>
-          <TabsTrigger value="subjects">My Subjects</TabsTrigger>
-          <TabsTrigger value="results">Results</TabsTrigger>
-        </TabsList>
+      {isApproved && (
+        <Tabs defaultValue="exams" className="space-y-6">
+          <TabsList>
+            <TabsTrigger value="exams">My Exams</TabsTrigger>
+            <TabsTrigger value="subjects">My Subjects</TabsTrigger>
+            <TabsTrigger value="results">Results</TabsTrigger>
+          </TabsList>
 
         <TabsContent value="exams" className="space-y-6">
           {/* Upcoming Exams */}
@@ -546,7 +570,8 @@ export default function ExamsPage() {
             </CardContent>
           </Card>
         </TabsContent>
-      </Tabs>
+        </Tabs>
+      )}
     </div>
   );
 
