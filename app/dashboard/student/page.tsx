@@ -47,9 +47,11 @@ export default function StudentDashboard() {
   const studentExams = mockExams.filter(exam => exam.semester === 4); // Current semester
   const upcomingExams = studentExams.filter(exam => exam.status === 'scheduled');
   const completedExams = studentExams.filter(exam => exam.status === 'graded');
-  const averageScore = completedExams.length > 0 
-    ? Math.round(completedExams.reduce((sum, exam) => sum + (exam.obtainedMarks || 0), 0) / completedExams.length)
-    : 0;
+  
+  // Get dynamic data from student record
+  const averageScore = studentData.percentage;
+  const currentSemester = studentData.currentSemester;
+  const cgpa = studentData.cgpa;
 
   return (
     <div className="min-h-screen bg-gray-50/40">
@@ -80,11 +82,11 @@ export default function StudentDashboard() {
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Course</p>
-                <p className="font-semibold">{user.course}</p>
+                <p className="font-semibold">{user.course || 'Computer Science'}</p>
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Year</p>
-                <p className="font-semibold">{user.year} Year</p>
+                <p className="font-semibold">{user.year || 2} Year</p>
               </div>
             </div>
           </CardContent>
@@ -150,9 +152,9 @@ export default function StudentDashboard() {
           />
           <DashboardCard
             title="Average Score"
-            value={`${averageScore}%`}
+            value={`${averageScore.toFixed(1)}%`}
             icon={Award}
-            description="Current semester"
+            description={`CGPA: ${cgpa.toFixed(2)}`}
             className="border-green-200 bg-green-50/50"
             action={{
               label: "View Results",
@@ -162,15 +164,24 @@ export default function StudentDashboard() {
         </div>
 
         {/* Notifications */}
-        <Alert className="mb-8">
-          <Bell className="h-4 w-4" />
-          <AlertDescription>
-            <strong>Reminder:</strong> Your hostel fees of ₹15,000 are due by February 15, 2024. 
-            <Button variant="link" className="p-0 h-auto ml-1" onClick={() => router.push('/dashboard/fees')}>
-              Pay now
-            </Button>
-          </AlertDescription>
-        </Alert>
+        {studentData.nextFee ? (
+          <Alert className="mb-8">
+            <Bell className="h-4 w-4" />
+            <AlertDescription>
+              <strong>Reminder:</strong> Your {studentData.nextFee.type} fees of ₹{studentData.nextFee.amount.toLocaleString()} are due by {new Date(studentData.nextFee.dueDate).toLocaleDateString()}. 
+              <Button variant="link" className="p-0 h-auto ml-1" onClick={() => router.push('/dashboard/fees')}>
+                Pay now
+              </Button>
+            </AlertDescription>
+          </Alert>
+        ) : (
+          <Alert className="mb-8 border-green-200 bg-green-50">
+            <CheckCircle className="h-4 w-4 text-green-600" />
+            <AlertDescription className="text-green-800">
+              <strong>Great!</strong> You have no pending fee payments at this time.
+            </AlertDescription>
+          </Alert>
+        )}
 
         <div className="grid gap-6 md:grid-cols-2">
           {/* Fee Status */}
@@ -195,7 +206,10 @@ export default function StudentDashboard() {
                     <span>Pending Fees</span>
                     <span className="text-red-600">₹{studentData.pendingFees.toLocaleString()}</span>
                   </div>
-                  <Progress value={75} className="h-2" />
+                  <Progress 
+                    value={studentData.totalFeesPaid > 0 ? (studentData.totalFeesPaid / (studentData.totalFeesPaid + studentData.pendingFees)) * 100 : 0} 
+                    className="h-2" 
+                  />
                 </div>
                 
                 <div className="space-y-3">
@@ -286,11 +300,11 @@ export default function StudentDashboard() {
                   <h4 className="font-semibold mb-2">Current Semester</h4>
                   <div className="space-y-2">
                     <div className="flex justify-between">
-                      <span className="text-sm">Semester 4</span>
+                      <span className="text-sm">Semester {currentSemester}</span>
                       <span className="text-sm">In Progress</span>
                     </div>
-                    <Progress value={60} className="h-2" />
-                    <p className="text-xs text-muted-foreground">60% completed</p>
+                    <Progress value={((currentSemester % 2) * 50) + 25} className="h-2" />
+                    <p className="text-xs text-muted-foreground">{((currentSemester % 2) * 50) + 25}% completed</p>
                   </div>
                 </div>
               </div>

@@ -21,7 +21,15 @@ import {
   FileText
 } from 'lucide-react';
 import { authService, User } from '@/lib/auth';
-import { mockMetrics, mockAdmissions, mockFees, mockExams } from '@/lib/mockData';
+import { 
+  mockMetrics, 
+  mockAdmissions, 
+  mockFees, 
+  mockExams, 
+  getMonthlyRevenue,
+  getTopPerformingStudents,
+  getClassAverage 
+} from '@/lib/mockData';
 
 export default function AdminDashboard() {
   const [user, setUser] = useState<User | null>(null);
@@ -44,6 +52,9 @@ export default function AdminDashboard() {
   const recentPayments = mockFees.filter(fee => fee.status === 'paid').slice(0, 3);
   const upcomingExams = mockExams.filter(exam => exam.status === 'scheduled').slice(0, 3);
   const recentResults = mockExams.filter(exam => exam.status === 'graded').slice(0, 3);
+  const monthlyRevenue = getMonthlyRevenue();
+  const topStudents = getTopPerformingStudents(3);
+  const classAverage = getClassAverage();
 
   return (
     <div className="min-h-screen bg-gray-50/40">
@@ -142,7 +153,7 @@ export default function AdminDashboard() {
               <TrendingUp className="h-4 w-4 text-green-600" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-green-600">₹12.5L</div>
+              <div className="text-2xl font-bold text-green-600">₹{(monthlyRevenue / 100000).toFixed(1)}L</div>
               <p className="text-xs text-muted-foreground">Revenue collected</p>
             </CardContent>
           </Card>
@@ -245,6 +256,44 @@ export default function AdminDashboard() {
                       <p className="text-xs text-muted-foreground mt-1">
                         {new Date(exam.date).toLocaleDateString()}
                       </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Top Performing Students */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center justify-between">
+                Top Performers
+                <Button variant="outline" size="sm" onClick={() => router.push('/dashboard/exams')}>
+                  View All
+                </Button>
+              </CardTitle>
+              <CardDescription>Highest performing students</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="text-center p-3 bg-blue-50 rounded-lg">
+                  <p className="text-sm text-muted-foreground">Class Average CGPA</p>
+                  <p className="text-2xl font-bold text-blue-600">{classAverage.toFixed(2)}</p>
+                </div>
+                {topStudents.map((student, index) => (
+                  <div key={student.studentId} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <div className="flex items-center space-x-3">
+                      <div className="flex items-center justify-center w-6 h-6 bg-yellow-100 text-yellow-800 rounded-full text-xs font-bold">
+                        {index + 1}
+                      </div>
+                      <div>
+                        <p className="font-medium">{student.studentName}</p>
+                        <p className="text-sm text-muted-foreground">{student.studentId}</p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-semibold">{student.cgpa.toFixed(2)} CGPA</p>
+                      <p className="text-xs text-muted-foreground">{student.percentage.toFixed(1)}%</p>
                     </div>
                   </div>
                 ))}
