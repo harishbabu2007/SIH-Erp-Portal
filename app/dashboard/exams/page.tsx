@@ -26,7 +26,7 @@ import {
   User as UserIcon
 } from 'lucide-react';
 import { authService, User } from '@/lib/auth';
-import { mockSubjects, mockExams, Subject, Exam } from '@/lib/mockData';
+import { mockSubjects, mockExams, Subject, Exam, updateStudentExamResult, getStudentsForExam, getStudentExamResults } from '@/lib/mockData';
 
 export default function ExamsPage() {
   const [user, setUser] = useState<User | null>(null);

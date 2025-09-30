@@ -12,9 +12,11 @@ import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Bell, Moon, Globe, Shield, Smartphone, Mail, MessageSquare, Volume2, Eye, Lock, Database, Download, Trash2, TriangleAlert as AlertTriangle } from 'lucide-react';
 import { authService, User } from '@/lib/auth';
+import { useTheme } from 'next-themes';
 
 export default function SettingsPage() {
   const [user, setUser] = useState<User | null>(null);
+  const { theme, setTheme } = useTheme();
   const [settings, setSettings] = useState({
     notifications: {
       email: true,
@@ -240,8 +242,8 @@ export default function SettingsPage() {
                     <div className="space-y-2">
                       <Label>Theme</Label>
                       <Select
-                        value={settings.appearance.theme}
-                        onValueChange={(value) => handleSettingChange('appearance', 'theme', value)}
+                        value={theme}
+                        onValueChange={setTheme}
                       >
                         <SelectTrigger>
                           <SelectValue />
