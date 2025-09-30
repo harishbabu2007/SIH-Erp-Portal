@@ -15,24 +15,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Progress } from '@/components/ui/progress';
-import { 
-  UserPlus, 
-  Eye, 
-  CheckCircle, 
-  XCircle, 
-  Clock, 
-  Search,
-  Filter,
-  Download,
-  Upload,
-  FileText,
-  AlertCircle,
-  Calendar,
-  User as UserIcon,
-  Mail,
-  Phone,
-  GraduationCap
-} from 'lucide-react';
+import { UserPlus, Eye, CircleCheck as CheckCircle, Circle as XCircle, Clock, Search, Filter, Download, Upload, FileText, CircleAlert as AlertCircle, Calendar, User as UserIcon, Mail, Phone, GraduationCap } from 'lucide-react';
 import { authService, User } from '@/lib/auth';
 import { mockAdmissions, AdmissionApplication } from '@/lib/mockData';
 
@@ -605,6 +588,7 @@ function ApplicationDetails({
 function NewApplicationForm({ onSubmit }: { onSubmit: (data: any) => void }) {
   const [formData, setFormData] = useState({
     course: '',
+    phone: '',
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -620,7 +604,8 @@ function NewApplicationForm({ onSubmit }: { onSubmit: (data: any) => void }) {
       
       // Reset form
       setFormData({
-        course: ''
+        course: '',
+        phone: ''
       });
       
       // Close dialog (you might want to pass a close function as prop)
@@ -650,6 +635,18 @@ function NewApplicationForm({ onSubmit }: { onSubmit: (data: any) => void }) {
             </SelectContent>
           </Select>
         </div>
+        
+        <div>
+          <Label htmlFor="phone">Phone Number *</Label>
+          <Input
+            id="phone"
+            type="tel"
+            value={formData.phone}
+            onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+            placeholder="+91 9876543210"
+            required
+          />
+        </div>
       
       <Alert>
         <AlertCircle className="h-4 w-4" />
@@ -661,7 +658,7 @@ function NewApplicationForm({ onSubmit }: { onSubmit: (data: any) => void }) {
       
       <div className="flex justify-end space-x-2">
         <Button type="button" variant="outline">Cancel</Button>
-        <Button type="submit" disabled={isSubmitting || !formData.course}>
+        <Button type="submit" disabled={isSubmitting || !formData.course || !formData.phone}>
           {isSubmitting ? 'Submitting...' : 'Submit Application'}
         </Button>
       </div>

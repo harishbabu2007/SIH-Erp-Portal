@@ -12,19 +12,7 @@ import {
   DropdownMenuTrigger 
 } from '@/components/ui/dropdown-menu';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import { 
-  Menu, 
-  GraduationCap, 
-  LogOut, 
-  User as UserIcon, 
-  Settings,
-  Bell,
-  Home,
-  UserPlus,
-  CreditCard,
-  Building2,
-  BookOpen
-} from 'lucide-react';
+import { Menu, GraduationCap, LogOut, User as UserIcon, Settings, Bell, Chrome as Home, UserPlus, CreditCard, Building2, BookOpen } from 'lucide-react';
 import { authService, User } from '@/lib/auth';
 import { useRouter } from 'next/navigation';
 
@@ -178,11 +166,11 @@ export function Navbar({ user, currentPage = 'dashboard' }: NavbarProps) {
               <DropdownMenuSeparator />
               <DropdownMenuItem>
                 <UserIcon className="mr-2 h-4 w-4" />
-                <span>Profile</span>
+                <span onClick={() => router.push('/dashboard/profile')}>Profile</span>
               </DropdownMenuItem>
               <DropdownMenuItem>
                 <Settings className="mr-2 h-4 w-4" />
-                <span>Settings</span>
+                <span onClick={() => router.push('/dashboard/settings')}>Settings</span>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={handleLogout} className="text-red-600">

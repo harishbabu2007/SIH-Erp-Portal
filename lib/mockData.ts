@@ -233,6 +233,135 @@ export const mockMetrics: DashboardMetrics = {
   booksIssued: 450
 };
 
+export interface StudentGrade {
+  studentId: string;
+  studentName: string;
+  cgpa: number;
+  percentage: number;
+  currentSemester: number;
+  course: string;
+  year: number;
+  subjects: {
+    subjectId: string;
+    subjectName: string;
+    grade: string;
+    marks: number;
+    maxMarks: number;
+  }[];
+}
+
+export const mockStudentGrades: StudentGrade[] = [
+  {
+    studentId: 'CS2024001',
+    studentName: 'Itadori Yuji',
+    cgpa: 8.5,
+    percentage: 85,
+    currentSemester: 4,
+    course: 'CSE',
+    year: 2,
+    subjects: [
+      {
+        subjectId: '1',
+        subjectName: 'Data Structures and Algorithms',
+        grade: 'A',
+        marks: 85,
+        maxMarks: 100
+      },
+      {
+        subjectId: '2',
+        subjectName: 'Database Management Systems',
+        grade: 'B+',
+        marks: 78,
+        maxMarks: 100
+      }
+    ]
+  },
+  {
+    studentId: 'EC2024002',
+    studentName: 'Nobara Kugisaki',
+    cgpa: 9.2,
+    percentage: 92,
+    currentSemester: 4,
+    course: 'ECE',
+    year: 2,
+    subjects: [
+      {
+        subjectId: '3',
+        subjectName: 'Digital Electronics',
+        grade: 'A+',
+        marks: 95,
+        maxMarks: 100
+      },
+      {
+        subjectId: '4',
+        subjectName: 'Signal Processing',
+        grade: 'A',
+        marks: 89,
+        maxMarks: 100
+      }
+    ]
+  },
+  {
+    studentId: 'CS2024003',
+    studentName: 'Megumi Fushiguro',
+    cgpa: 7.8,
+    percentage: 78,
+    currentSemester: 4,
+    course: 'CSE',
+    year: 2,
+    subjects: [
+      {
+        subjectId: '1',
+        subjectName: 'Data Structures and Algorithms',
+        grade: 'B',
+        marks: 75,
+        maxMarks: 100
+      },
+      {
+        subjectId: '2',
+        subjectName: 'Database Management Systems',
+        grade: 'B+',
+        marks: 81,
+        maxMarks: 100
+      }
+    ]
+  }
+];
+
+// Helper function to get monthly revenue
+export const getMonthlyRevenue = (): number => {
+  const currentMonth = new Date().getMonth();
+  const currentYear = new Date().getFullYear();
+  
+  return mockFees
+    .filter(fee => {
+      if (fee.status !== 'paid' || !fee.paidDate) return false;
+      const paidDate = new Date(fee.paidDate);
+      return paidDate.getMonth() === currentMonth && paidDate.getFullYear() === currentYear;
+    })
+    .reduce((sum, fee) => sum + fee.amount, 0);
+};
+
+// Helper function to get top performing students
+export const getTopPerformingStudents = (limit: number = 5) => {
+  const studentPerformance = mockStudentGrades.map(grade => ({
+    studentName: grade.studentName,
+    studentId: grade.studentId,
+    cgpa: grade.cgpa,
+    percentage: grade.percentage
+  }));
+  
+  return studentPerformance
+    .sort((a, b) => b.cgpa - a.cgpa)
+    .slice(0, limit);
+};
+
+// Helper function to get class average
+export const getClassAverage = () => {
+  const totalCGPA = mockStudentGrades.reduce((sum, grade) => sum + grade.cgpa, 0);
+  return mockStudentGrades.length > 0 ? totalCGPA / mockStudentGrades.length : 0;
+};
+
 export const mockSubjects: Subject[] = [
   {
     id: '1',
@@ -316,23 +445,44 @@ export const getStudentData = (studentId: string = 'CS2024001') => {
   };
 
   const studentName = studentNameMap[studentId] || 'Itadori Yuji';
+  
+  // Get student's academic record
+  const studentGrade = mockStudentGrades.find(grade => grade.studentId === studentId);
 
   const fees = mockFees.filter(f => f.studentId === studentId);
   const books = mockLibraryBooks.filter(book => book.issuedTo === studentName);
   const room = mockHostelRooms.find(room => room.students.includes(studentName));
+  
+  // Get next pending fee
+  const pendingFees = fees.filter(f => f.status !== 'paid');
+  const nextFee = pendingFees.sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime())[0];
 
   // Get real admission status from mockAdmissions
   const admissionRecord = mockAdmissions.find(adm => adm.studentName === studentName);
   const admissionStatus = admissionRecord ? admissionRecord.status : 'pending';
+  
+  // Calculate totals
+  const totalFeesPaid = fees.filter(f => f.status === 'paid').reduce((sum, f) => sum + f.amount, 0);
+  const pendingFeesAmount = fees.filter(f => f.status !== 'paid').reduce((sum, f) => sum + f.amount, 0);
 
   return {
     studentName,
+    studentId,
     fees,
     books,
     room,
     admissionStatus,
-    totalFeesPaid: fees.filter(f => f.status === 'paid').reduce((sum, f) => sum + f.amount, 0),
-    pendingFees: fees.filter(f => f.status !== 'paid').reduce((sum, f) => sum + f.amount, 0)
+    totalFeesPaid,
+    pendingFees: pendingFeesAmount,
+    nextFee: nextFee ? {
+      amount: nextFee.amount,
+      dueDate: nextFee.dueDate,
+      type: nextFee.type
+    } : null,
+    academicRecord: studentGrade,
+    currentSemester: studentGrade?.currentSemester || 4,
+    cgpa: studentGrade?.cgpa || 0,
+    percentage: studentGrade?.percentage || 0
   };
 };
 
