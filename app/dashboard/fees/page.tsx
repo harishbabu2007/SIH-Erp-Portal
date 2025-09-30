@@ -11,18 +11,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { 
-  CreditCard, 
-  Plus, 
-  Download, 
-  Search,
-  Receipt,
-  DollarSign,
-  Clock,
-  CheckCircle,
-  AlertCircle,
-  Calendar
-} from 'lucide-react';
+import { CreditCard, Plus, Download, Search, Receipt, DollarSign, Clock, CircleCheck as CheckCircle, CircleAlert as AlertCircle, Calendar } from 'lucide-react';
 import { authService, User } from '@/lib/auth';
 import { mockFees, FeeRecord, getStudentData, updateFeeStatus } from '@/lib/mockData';
 
@@ -58,14 +47,18 @@ export default function FeesPage() {
   }
 
   const handlePayFee = (feeId: string) => {
-    const paidDate = new Date().toISOString().split('T')[0];
-    const receiptNumber = `RCP-${Date.now()}`;
-    
-    // Update the mock data
-    updateFeeStatus(feeId, 'paid', paidDate, receiptNumber);
-    
-    // Update local state to trigger re-render
-    setFees([...mockFees]);
+    setFees(prev => 
+      prev.map(fee => 
+        fee.id === feeId 
+          ? { 
+              ...fee, 
+              status: 'paid', 
+              paidDate: new Date().toISOString().split('T')[0],
+              receiptNumber: `RCP-${Date.now()}`
+            }
+          : fee
+      )
+    );
   };
 
   const filteredFees = user.role === 'admin' 
@@ -438,7 +431,7 @@ function CollectPaymentForm() {
         />
       </div>
       <div className="flex justify-end space-x-2">
-        <Button type="button" variant="outline" onClick={() => window.location.reload()}>Cancel</Button>
+        <Button type="button" variant="outline">Cancel</Button>
         <Button type="submit">Collect Payment</Button>
       </div>
     </form>

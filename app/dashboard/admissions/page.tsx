@@ -657,7 +657,7 @@ function NewApplicationForm({ onSubmit }: { onSubmit: (data: any) => void }) {
       </Alert>
       
       <div className="flex justify-end space-x-2">
-        <Button type="button" variant="outline">Cancel</Button>
+        <Button type="button" variant="outline" onClick={() => window.location.reload()}>Cancel</Button>
         <Button type="submit" disabled={isSubmitting || !formData.course || !formData.phone}>
           {isSubmitting ? 'Submitting...' : 'Submit Application'}
         </Button>
