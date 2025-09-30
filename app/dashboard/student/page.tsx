@@ -11,7 +11,7 @@ import { Progress } from '@/components/ui/progress';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { CircleCheck as CheckCircle, Clock, DollarSign, Building2, BookOpen, CircleAlert as AlertCircle, Bell, Calendar, User as UserIcon, CreditCard, GraduationCap, Award } from 'lucide-react';
 import { authService, User } from '@/lib/auth';
-import { getStudentData, mockExams } from '@/lib/mockData';
+import { getStudentData, mockExams, getStudentExamResults } from '@/lib/mockData';
 
 export default function StudentDashboard() {
   const [user, setUser] = useState<User | null>(null);
@@ -33,7 +33,11 @@ export default function StudentDashboard() {
   const studentData = getStudentData(user.studentId || '');
   const studentExams = mockExams.filter(exam => exam.semester === 4); // Current semester
   const upcomingExams = studentExams.filter(exam => exam.status === 'scheduled');
-  const completedExams = studentExams.filter(exam => exam.status === 'graded');
+  const studentResults = getStudentExamResults(user.studentId || '');
+  const completedExams = studentResults.map(result => {
+    const exam = studentExams.find(e => e.id === result.id);
+    return exam ? { ...exam, obtainedMarks: result.obtainedMarks, grade: result.grade } : null;
+  }).filter((exam): exam is NonNullable<typeof exam> => exam !== null);
   
   // Get dynamic data from student record
   const averageScore = studentData.percentage;
