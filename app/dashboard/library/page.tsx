@@ -573,7 +573,7 @@ function IssueBookForm({
         />
       </div>
       <div className="flex justify-end space-x-2">
-        <Button type="button" variant="outline" onClick={() => window.location.reload()}>Cancel</Button>
+        <Button type="button" variant="outline">Cancel</Button>
         <Button type="submit">Issue Book</Button>
       </div>
     </form>

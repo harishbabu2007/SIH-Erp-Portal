@@ -12,9 +12,21 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { BookOpen, Plus, Search, Calendar, Clock, Award, CreditCard as Edit, GraduationCap, FileText, TrendingUp, User as UserIcon } from 'lucide-react';
+import { 
+  BookOpen, 
+  Plus, 
+  Search,
+  Calendar,
+  Clock,
+  Award,
+  Edit,
+  GraduationCap,
+  FileText,
+  TrendingUp,
+  User as UserIcon
+} from 'lucide-react';
 import { authService, User } from '@/lib/auth';
-import { mockSubjects, mockExams, Subject, Exam, updateStudentExamResult, getStudentsForExam, getStudentExamResults } from '@/lib/mockData';
+import { mockSubjects, mockExams, Subject, Exam } from '@/lib/mockData';
 
 export default function ExamsPage() {
   const [user, setUser] = useState<User | null>(null);
@@ -437,9 +449,7 @@ export default function ExamsPage() {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {studentExams.map((exam) => {
-                  const studentResult = getStudentExamResults(user.studentId || '').find(result => result.examId === exam.id);
-                  return (
+                {studentExams.map((exam) => (
                   <div key={exam.id} className="flex items-center justify-between p-4 border rounded-lg">
                     <div>
                       <p className="font-medium">{exam.subjectName}</p>
@@ -448,28 +458,27 @@ export default function ExamsPage() {
                         <Badge variant="outline" className="capitalize">{exam.examType}</Badge>
                         <Badge 
                           variant={
-                            studentResult ? 'default' : 
+                            exam.status === 'graded' ? 'default' : 
                             exam.status === 'completed' ? 'secondary' : 'outline'
                           }
                         >
-                          {studentResult ? 'graded' : exam.status}
+                          {exam.status}
                         </Badge>
                       </div>
                     </div>
                     <div className="text-right">
                       <p className="font-semibold">{new Date(exam.date).toLocaleDateString()}</p>
-                      {studentResult && (
+                      {exam.status === 'graded' && exam.obtainedMarks !== undefined && (
                         <div className="mt-1">
                           <p className="text-sm">
-                            <span className="font-medium">{studentResult.obtainedMarks}/{exam.maxMarks}</span>
-                            <span className="ml-2 text-muted-foreground">({studentResult.grade})</span>
+                            <span className="font-medium">{exam.obtainedMarks}/{exam.maxMarks}</span>
+                            <span className="ml-2 text-muted-foreground">({exam.grade})</span>
                           </p>
                         </div>
                       )}
                     </div>
                   </div>
-                  );
-                })}
+                ))}
               </div>
             </CardContent>
           </Card>

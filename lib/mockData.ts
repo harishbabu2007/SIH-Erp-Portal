@@ -74,17 +74,10 @@ export interface Exam {
   date: string;
   duration: number;
   maxMarks: number;
+  obtainedMarks?: number;
+  grade?: string;
   status: 'scheduled' | 'completed' | 'graded' | 'pending';
   semester: number;
-}
-
-export interface StudentExamResult {
-  id: string;
-  studentId: string;
-  examId: string;
-  obtainedMarks: number;
-  grade: string;
-  status: 'graded';
 }
 
 // Mock data
@@ -398,6 +391,8 @@ export const mockExams: Exam[] = [
     date: '2024-02-15',
     duration: 120,
     maxMarks: 100,
+    obtainedMarks: 85,
+    grade: 'A',
     status: 'graded',
     semester: 4
   },
@@ -422,6 +417,8 @@ export const mockExams: Exam[] = [
     date: '2024-01-30',
     duration: 0,
     maxMarks: 25,
+    obtainedMarks: 22,
+    grade: 'B+',
     status: 'graded',
     semester: 4
   },
@@ -439,130 +436,6 @@ export const mockExams: Exam[] = [
   }
 ];
 
-export const mockStudentExamResults: StudentExamResult[] = [
-  {
-    id: '1',
-    studentId: 'CS2024001',
-    examId: '1',
-    obtainedMarks: 85,
-    grade: 'A',
-    status: 'graded'
-  },
-  {
-    id: '2',
-    studentId: 'CS2024001',
-    examId: '3',
-    obtainedMarks: 22,
-    grade: 'B+',
-    status: 'graded'
-  },
-  {
-    id: '3',
-    studentId: 'EC2024002',
-    examId: '1',
-    obtainedMarks: 92,
-    grade: 'A+',
-    status: 'graded'
-  },
-  {
-    id: '4',
-    studentId: 'CS2024003',
-    examId: '1',
-    obtainedMarks: 75,
-    grade: 'B',
-    status: 'graded'
-  }
-];
-
-// Helper function to update fee status
-export const updateFeeStatus = (feeId: string, newStatus: 'paid' | 'pending' | 'overdue', paidDate?: string, receiptNumber?: string) => {
-  const feeIndex = mockFees.findIndex(fee => fee.id === feeId);
-  if (feeIndex !== -1) {
-    mockFees[feeIndex] = {
-      ...mockFees[feeIndex],
-      status: newStatus,
-      paidDate,
-      receiptNumber
-    };
-  }
-};
-
-// Helper function to update student exam result
-export const updateStudentExamResult = (studentId: string, examId: string, obtainedMarks: number, grade: string) => {
-  const existingResultIndex = mockStudentExamResults.findIndex(
-    result => result.studentId === studentId && result.examId === examId
-  );
-  
-  if (existingResultIndex !== -1) {
-    mockStudentExamResults[existingResultIndex] = {
-      ...mockStudentExamResults[existingResultIndex],
-      obtainedMarks,
-      grade
-    };
-  } else {
-    mockStudentExamResults.push({
-      id: (mockStudentExamResults.length + 1).toString(),
-      studentId,
-      examId,
-      obtainedMarks,
-      grade,
-      status: 'graded'
-    });
-  }
-  
-  // Update exam status to graded
-  const examIndex = mockExams.findIndex(exam => exam.id === examId);
-  if (examIndex !== -1) {
-    mockExams[examIndex].status = 'graded';
-  }
-  
-  // Recalculate student's CGPA and percentage
-  const studentResults = mockStudentExamResults.filter(result => result.studentId === studentId);
-  if (studentResults.length > 0) {
-    const totalMarks = studentResults.reduce((sum, result) => sum + result.obtainedMarks, 0);
-    const totalMaxMarks = studentResults.reduce((sum, result) => {
-      const exam = mockExams.find(e => e.id === result.examId);
-      return sum + (exam?.maxMarks || 0);
-    }, 0);
-    
-    const percentage = totalMaxMarks > 0 ? (totalMarks / totalMaxMarks) * 100 : 0;
-    const cgpa = percentage / 10; // Simple conversion
-    
-    // Update student grades
-    const studentGradeIndex = mockStudentGrades.findIndex(grade => grade.studentId === studentId);
-    if (studentGradeIndex !== -1) {
-      mockStudentGrades[studentGradeIndex].percentage = percentage;
-      mockStudentGrades[studentGradeIndex].cgpa = cgpa;
-    }
-  }
-};
-
-// Helper function to get student exam results
-export const getStudentExamResults = (studentId: string) => {
-  return mockStudentExamResults.filter(result => result.studentId === studentId);
-};
-
-// Helper function to get all students for an exam
-export const getStudentsForExam = (examId: string) => {
-  const allStudents = mockStudentGrades.map(grade => ({
-    studentId: grade.studentId,
-    studentName: grade.studentName
-  }));
-  
-  return allStudents.map(student => {
-    const existingResult = mockStudentExamResults.find(
-      result => result.studentId === student.studentId && result.examId === examId
-    );
-    
-    return {
-      ...student,
-      obtainedMarks: existingResult?.obtainedMarks || 0,
-      grade: existingResult?.grade || '',
-      isGraded: !!existingResult
-    };
-  });
-};
-
 export const getStudentData = (studentId: string = 'CS2024001') => {
   // Map student IDs to names for filtering
   const studentNameMap: { [key: string]: string } = {
@@ -579,7 +452,6 @@ export const getStudentData = (studentId: string = 'CS2024001') => {
   const fees = mockFees.filter(f => f.studentId === studentId);
   const books = mockLibraryBooks.filter(book => book.issuedTo === studentName);
   const room = mockHostelRooms.find(room => room.students.includes(studentName));
-  const examResults = getStudentExamResults(studentId);
   
   // Get next pending fee
   const pendingFees = fees.filter(f => f.status !== 'paid');
@@ -610,8 +482,7 @@ export const getStudentData = (studentId: string = 'CS2024001') => {
     academicRecord: studentGrade,
     currentSemester: studentGrade?.currentSemester || 4,
     cgpa: studentGrade?.cgpa || 0,
-    percentage: studentGrade?.percentage || 0,
-    examResults
+    percentage: studentGrade?.percentage || 0
   };
 };
 
